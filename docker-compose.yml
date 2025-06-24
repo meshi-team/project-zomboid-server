@@ -1,0 +1,18 @@
+services:
+  pzomboid-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: pzomboid-server
+    restart: unless-stopped
+    ports:
+      - "16261:16261/udp"
+      - "16262:16262/udp"
+      - "8766:8766/udp"
+      - "27015:27015/udp"
+      - "27016:27016/tcp"
+    environment:
+      PZ_SERVER_NAME: "My PZ Server"
+      PZ_SERVER_PORT: 16261
+      PZ_SERVER_PASSWORD: "your_password_here"
+      PZ_SERVER_ADMIN_PASSWORD: "your_admin_password_here"
