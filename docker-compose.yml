@@ -1,0 +1,13 @@
+services:
+  pzomboid-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: pzomboid-server
+    restart: unless-stopped
+    ports:
+      - "16261:16261/udp"
+      - "16262:16262/udp"
+      - "8766:8766/udp"
+      - "27015:27015/udp"
+      - "27016:27016/tcp"
