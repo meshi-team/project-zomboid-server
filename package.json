@@ -2,11 +2,14 @@
   "name": "project-zomboid-server",
   "type": "module",
   "scripts": {
-    "lint": "eslint --config ./.config/.eslint.config.mjs .",
-    "lint-fix": "eslint --config ./.config/.eslint.config.mjs --fix .",
+    "lint": "eslint --config ./.config/.eslint.config.mjs --quiet .",
+    "lint-fix": "eslint --config ./.config/.eslint.config.mjs --fix --quiet .",
+    "ruff": "ruff check --config ./.config/ruff.toml --quiet .",
+    "ruff-fix": "ruff check --config ./.config/ruff.toml --fix --quiet .",
     "format": "prettier --config ./.config/.prettierrc.yml --ignore-path ./.config/.prettierignore --write .",
-    "ci:eslint": "eslint --config ./.config/.eslint.config.mjs --max-warnings 0 --no-color .",
-    "ci:prettier": "prettier --config ./.config/.prettierrc.yml --ignore-path ./.config/.prettierignore --check --no-color ."
+    "ci:eslint": "eslint --config ./.config/.eslint.config.mjs --max-warnings 0 --no-color --quiet .",
+    "ci:prettier": "prettier --config ./.config/.prettierrc.yml --ignore-path ./.config/.prettierignore --check --no-color .",
+    "ci:ruff": "ruff check --config ./.config/ruff.toml --quiet ."
   },
   "devDependencies": {
     "eslint": "^9.20.0",

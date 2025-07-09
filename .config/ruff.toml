@@ -1,0 +1,25 @@
+exclude = [
+  ".git",
+  "node_modules",
+  "venv",
+  ".config",
+  ".github",
+]
+
+line-length   = 88
+indent-width  = 4
+target-version = "py312"
+
+[lint]
+select       = ["ALL"]
+ignore       = [
+  "D100",
+  "INP001",
+]
+fixable      = ["ALL"]
+
+[format]
+quote-style               = "double"   # Use double quotes like Black
+indent-style              = "space"    # Indent with spaces
+skip-magic-trailing-comma = false      # Respect trailing commas
+line-ending               = "auto"     # Detect platform line endings
