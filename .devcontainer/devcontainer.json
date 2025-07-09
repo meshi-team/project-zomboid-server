@@ -49,6 +49,10 @@
       "version": "latest"
     },
 
+    // ruff (Python linter and formatter)
+    // https://github.com/devcontainers-extra/features/tree/main/src/ruff
+    "ghcr.io/devcontainers-extra/features/ruff:1": {},
+
     // shellCheck
     // https://github.com/lukewiwa/features/tree/main/src/shellcheck
     "ghcr.io/lukewiwa/features/shellcheck:0": {
@@ -128,8 +132,10 @@
 
         // Editor
         // - .editorconfig support
-        "EditorConfig.EditorConfig"
+        "EditorConfig.EditorConfig",
 
+        // Ruff (Python linter)
+        "charliermarsh.ruff"
         ////////////////////////////////////////////////////////////////////////
         // Excluded extensions
         ////////////////////////////////////////////////////////////////////////
@@ -238,6 +244,18 @@
           "${containerWorkspaceFolder}/.config/.hadolint.yml",
           "--no-color"
         ],
+
+        "python.linting.enabled": false,
+        "python.linting.flake8Enabled": false,
+        "python.linting.pylintEnabled": false,
+
+        // Ruff
+        "ruff.enable": true,
+        "ruff.configuration": "${containerWorkspaceFolder}/.config/ruff.toml",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": false
+        },
 
         // yamllint
         // - Use installed yamllint
