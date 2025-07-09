@@ -2,8 +2,8 @@
   "name": "project-zomboid-server",
   "type": "module",
   "scripts": {
-    "lint": "eslint --config ./.config/.eslint.config.mjs --quiet .",
-    "lint-fix": "eslint --config ./.config/.eslint.config.mjs --fix --quiet .",
+    "lint": "eslint --config ./.config/.eslint.config.mjs .",
+    "lint-fix": "eslint --config ./.config/.eslint.config.mjs --fix .",
     "ruff": "ruff check --config ./.config/ruff.toml --quiet .",
     "ruff-fix": "ruff check --config ./.config/ruff.toml --fix --quiet .",
     "format": "prettier --config ./.config/.prettierrc.yml --ignore-path ./.config/.prettierignore --write .",
