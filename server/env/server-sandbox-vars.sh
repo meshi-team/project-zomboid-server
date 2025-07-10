@@ -42,7 +42,7 @@ VERSION="${VERSION:-5}"
 # 3 = High
 # 4 = Normal
 # 5 = Low
-ZOMBIES="${ZOMBIES:-4}"
+ZOMBIES="${ZOMBIES:-3}"
 
 # Default=Urban Focused
 # 1 = Urban Focused
@@ -248,6 +248,8 @@ EROSION_DAYS="${EROSION_DAYS:-0}"
 # Modifies the base XP gain from actions by this number. Minimum=0.00 Maximum=1000.00 Default=1.00
 XP_MULTIPLIER="${XP_MULTIPLIER:-1.0}"
 
+XP_MULTIPLIER_AFFECTS_PASSIVE="${XP_MULTIPLIER_AFFECTS_PASSIVE:-false}"
+
 # Use this to multiply or reduce engine general loudness. Minimum=0.00 Maximum=100.00 Default=1.00
 ZOMBIE_ATTRACTION_MULTIPLIER="${ZOMBIE_ATTRACTION_MULTIPLIER:-1.0}"
 
@@ -450,6 +452,8 @@ CONSTRUCTION_BONUS_POINTS="${CONSTRUCTION_BONUS_POINTS:-3}"
 # 3 = Normal
 NIGHT_DARKNESS="${NIGHT_DARKNESS:-3}"
 
+NIGHT_LENGTH="${NIGHT_LENGTH:-3}"
+
 # Increase and decrease the impact injuries have on your body, and their healing time. Default=Normal
 # 1 = Low
 # 2 = Normal
@@ -615,6 +619,10 @@ ENABLE_POISONING="${ENABLE_POISONING:-1}"
 # 1 = In and around bodies
 # 2 = In bodies only
 MAGGOT_SPAWN="${MAGGOT_SPAWN:-1}"
+
+# The higher the value, the longer lightbulbs last before breaking. If 0, lightbulbs will never break.
+# Does not affect vehicle headlights. Minimum=0.00 Maximum=1000.00 Default=1.00
+LIGHT_BULB_LIFESPAN="${LIGHT_BULB_LIFESPAN:-1.0}"
 
 # --------------------------------------------------------------
 # Nested categories for map settings
