@@ -26,10 +26,10 @@ SERVER_PRESET="${SERVER_PRESET:-}"
 
 # Java and memory settings
 MEMORY="${MEMORY:-2048m}"
-SOFTRESET="${SOFTRESET:-1}" # 0 = False, 1 = True
+SOFTRESET="${SOFTRESET:-0}" # 0 = False, 1 = True
 
 # Server behavior flags
-SERVER_NAME="${SERVER_NAME:-project-zomboid-server}"
+SERVER_NAME="${SERVER_NAME:-servertest}"
 COOP_SERVER="${COOP_SERVER:-0}" # 0 = False, 1 = True
 NO_STEAM="${NO_STEAM:-0}"       # 0 = False, 1 = True
 CACHE_DIR="${CACHE_DIR:-/root/Zomboid}"
@@ -38,9 +38,9 @@ ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin}"
 IP="${IP:-0.0.0.0}"
 PORT="${PORT:-16261}"
-STEAM_VAC="${STEAM_VAC:-0}" # 0 = False, 1 = True
-STEAM_PORT_1="${STEAM_PORT_1:-8766}"
-STEAM_PORT_2="${STEAM_PORT_2:-8767}"
+STEAM_VAC="${STEAM_VAC:-true}"
+STEAM_PORT_1="${STEAM_PORT_1:-}"
+STEAM_PORT_2="${STEAM_PORT_2:-}"
 
 # Disable automatic export
 set +a
