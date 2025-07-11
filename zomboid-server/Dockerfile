@@ -23,6 +23,8 @@ VOLUME ["/pzomboid-server", "/root/Zomboid"]
 COPY ./scripts /scripts
 COPY ./env /env
 
+VOLUME [ "/root/Zomboid" ]
+
 RUN chmod +x /scripts/*.sh
 
 ENTRYPOINT ["bash", "/scripts/entrypoint.sh"]

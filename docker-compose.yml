@@ -2,7 +2,7 @@ services:
   zomboid-server:
     container_name: zomboid-server
     build:
-      context: ./server
+      context: ./zomboid-server
       dockerfile: Dockerfile
     ports:
       - 16261:16261/udp
