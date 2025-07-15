@@ -104,6 +104,7 @@ jobs:
       shfmt: ${{ contains(steps.check.outputs.modified_keys, 'shfmt') }}
       eslint: ${{ contains(steps.check.outputs.modified_keys, 'eslint') }}
       prettier: ${{ contains(steps.check.outputs.modified_keys, 'prettier') }}
+      python: ${{ contains(steps.check.outputs.modified_keys, 'python') }}
     steps:
       - name: Checkout code (on push)
         if: ${{ github.event_name == 'push' }}
@@ -150,6 +151,8 @@ jobs:
               - "**/*.js"
               - "**/*.mjs"
               - "**/*.cjs"
+            python:
+              - "**/*.py"
 
   # Run yamllint on all YAML files.
   # -> Fails if there are any linting issues.
@@ -291,6 +294,31 @@ jobs:
       - name: Run prettier
         shell: bash
         run: npm run --silent ci:prettier
+
+  ruff-python:
+    name: Ruff
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs:
+      - files-changed
+    if: ${{ needs.files-changed.outputs.python == 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        shell: bash
+        run: pip install --no-cache-dir ruff
+
+      - name: Run ruff linter
+        shell: bash
+        run: ruff check --config .config/ruff.toml --quiet .
 
   # Block the PR until all checks have passed.
   checks-passed:
