@@ -18,7 +18,7 @@ START_SCRIPT="${SERVER_DIR}/start-server.sh"
 ARGS=()
 
 # Java args
-[[ -n "${MEMORY}" ]] && ARGS+=("-Xmx${MEMORY}" "-Xms${MEMORY}")
+[[ -n "${SERVER_MEMORY}" ]] && ARGS+=("-Xmx${SERVER_MEMORY}" "-Xms${SERVER_MEMORY}")
 [[ "${SOFTRESET,,}" =~ ^(1|true)$ ]] && ARGS+=("-Dsoftreset")
 ARGS+=("--")
 

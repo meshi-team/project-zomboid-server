@@ -25,7 +25,7 @@ ZOMBOID_APP_ID="${ZOMBOID_APP_ID:-380870}"
 SERVER_PRESET="${SERVER_PRESET:-}"
 
 # Java and memory settings
-MEMORY="${MEMORY:-2048m}"
+SERVER_MEMORY="${SERVER_MEMORY:-2048m}"
 SOFTRESET="${SOFTRESET:-0}" # 0 = False, 1 = True
 
 # Server behavior flags

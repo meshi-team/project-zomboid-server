@@ -10,6 +10,7 @@
 DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ENV_SCRIPT="${DIR}/load-env.sh"
 SERVER_INIT_SCRIPT="${DIR}/init-server.sh"
+SERVER_CONFIG_UPDATE_SCRIPT="${DIR}/setup/update_server_config.py"
 
 # Source environment variables
 if [[ -f "${ENV_SCRIPT}" ]]; then
@@ -20,13 +21,26 @@ else
 	exit 1
 fi
 
+echo "updating server configuration with environment variables..."
+
+# Update server configuration for custom settings
+if [[ -f "${SERVER_CONFIG_UPDATE_SCRIPT}" ]]; then
+	(cd "${DIR}/setup" && python3 update_server_config.py)
+else
+	echo "Warning: Server configuration update script not found: ${SERVER_CONFIG_UPDATE_SCRIPT}"
+	exit 1
+fi
+
 if [[ ! -x "${SERVER_INIT_SCRIPT}" ]]; then
 	echo "Error: Server initialization script not found or not executable: ${SERVER_INIT_SCRIPT}"
 	exit 1
 fi
 
+# Execute the server initialization script
+# If no arguments are provided, run the server as default
 if [[ $# -eq 0 ]]; then
 	exec "${SERVER_INIT_SCRIPT}"
 fi
 
+# Excecute the Command passed to the container
 exec "$@"
