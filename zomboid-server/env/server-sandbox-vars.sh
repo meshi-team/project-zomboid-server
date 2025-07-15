@@ -334,7 +334,7 @@ LOOT_RESPAWN="${LOOT_RESPAWN:-1}"
 SEEN_HOURS_PREVENT_LOOT_RESPAWN="${SEEN_HOURS_PREVENT_LOOT_RESPAWN:-0}"
 
 # A comma-separated list of item types that will be removed after HoursForWorldItemRemoval hours.
-WORLD_ITEM_REMOVAL_LIST="${WORLD_ITEM_REMOVAL_LIST:-"Base.Hat,Base.Glasses,Base.Maggots"}"
+WORLD_ITEM_REMOVAL_LIST="${WORLD_ITEM_REMOVAL_LIST:-\"Base.Hat,Base.Glasses,Base.Maggots\"}"
 
 # Number of hours since an item was dropped on the ground before it is removed.  Items are removed the next time that part of the map is loaded.  Zero means items are not removed. Minimum=0.00 Maximum=2147483647.00 Default=24.00
 HOURS_FOR_WORLD_ITEM_REMOVAL="${HOURS_FOR_WORLD_ITEM_REMOVAL:-24.0}"
