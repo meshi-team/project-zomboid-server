@@ -2,6 +2,8 @@
 
 This repository provides a **Docker-based setup** for running a Project Zomboid dedicated server with advanced configuration options. It's designed for easy deployment, customizable gameplay settings, and streamlined server management.
 
+> 💡 **New**: Built-in admin console! Use `docker exec -it zomboid-server admin-console` to access the server administration interface powered by RCON protocol.
+
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
@@ -9,7 +11,6 @@ This repository provides a **Docker-based setup** for running a Project Zomboid 
 - [Coming Soon](#coming-soon)
   - [🚀 Ready-to-Use Server Images](#-ready-to-use-server-images)
   - [🔧 Workshop \& Mod Support](#-workshop--mod-support)
-  - [⚡ Server Commands CLI Integration](#-server-commands-cli-integration)
 - [Requirements](#requirements)
 - [How to Run](#how-to-run)
   - [🔧 Build from Source](#-build-from-source)
@@ -35,6 +36,7 @@ This repository provides a **Docker-based setup** for running a Project Zomboid 
 - 🐳 **Docker-based deployment** - Easy setup and deployment using Docker Compose
 - 🔧 **Environment-based config** - Easy configuration through environment files
 - ⚙️ **Extensive configuration** - Over 150+ configurable server and sandbox variables
+- 🎮 **Admin Command Line Interface** - Built-in RCON-based console for server administration
 
 ## Coming Soon
 
@@ -49,10 +51,6 @@ We're working on exciting new features to enhance your Project Zomboid server ex
 
 - **Steam Workshop Integration** - Automatic mod downloading and management
 - **Custom Mod Configurations** - Easy mod setup through environment variables
-
-### ⚡ Server Commands CLI Integration
-
-- **Direct Admin Command Execution** - Execute admin commands directly through Docker CLI without requiring in-game chat interface.
 
 ## Requirements
 
@@ -218,24 +216,42 @@ This section covers all aspects of managing your Project Zomboid server, from co
 
 ### 2. 🖥️ Accessing Server Console
 
-Attach to the running container to access the server console:
+**Important**: The server console is **not available** through `docker attach zomboid-server`. The Project Zomboid server runs in the background without an interactive console interface.
+
+To use the admin console, simply run:
 
 ```bash
-docker attach zomboid-server
+docker exec -it zomboid-server admin-console
 ```
 
-**Note**: Admin commands are only available through the in-game chat interface, not the Docker console. Use the Docker console primarily for monitoring server output and basic container management.
+This command launches the admin console tool and connects you to your running server using the RCON protocol.
 
-**Common admin commands (use in-game chat):**
+This command will:
+
+- Connect to the Project Zomboid server using the RCON protocol
+- Provide an interactive console for server administration
+- Allow you to execute admin commands directly on the server
+
+**RCON Connection Details:**
+
+- **Protocol**: Remote Console (RCON) - industry standard for game server management
+- **Authentication**: Uses the configured RCON password from your environment settings
+- **Port**: Default RCON port is `27015` (configurable via `RCON_PORT`)
+- **Security**: Encrypted connection for secure remote administration
+
+**Common admin commands (available through RCON console):**
 
 - `players` - List connected players
-- `kick <username>` - Kick a player
-- `ban <username>` - Ban a player
-- `unban <username>` - Unban a player
+- `kickuser <username>` - Kick a player
+- `banuser <username>` - Ban a player
+- `unbanuser <username>` - Unban a player
 - `adduser <username> <password>` - Add user account
 - `grantadmin <username>` - Grant admin privileges
 - `save` - Manually save the world
 - `quit` - Shutdown server gracefully
+- `help` - Show available commands
+
+**Note**: Type `:q` or press `Ctrl+C` to exit the admin console.
 
 ### 3. 💾 Volumes and Data Management
 

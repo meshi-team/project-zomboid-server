@@ -4,8 +4,6 @@ services:
     build:
       context: ./zomboid-server
       dockerfile: Dockerfile
-    volumes:
-      - ./data:/root/Zomboid # Change this to your desired $CACHE_DIR location
     ports:
       - 16261:16261/udp # Port for the server
       - 16261:16261/tcp # TCP port for the server

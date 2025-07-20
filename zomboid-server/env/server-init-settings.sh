@@ -180,7 +180,7 @@ SERVER_PLAYER_ID="${SERVER_PLAYER_ID:-934857515}"
 RCON_PORT="${RCON_PORT:-27015}"
 
 # RCON password (Pick a strong password)
-RCON_PASSWORD="${RCON_PASSWORD:-}"
+RCON_PASSWORD="${RCON_PASSWORD:-admin}"
 
 # Enables global text chat integration with a Discord channel
 DISCORD_ENABLE="${DISCORD_ENABLE:-false}"
