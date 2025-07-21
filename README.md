@@ -4,33 +4,6 @@ This repository provides a **Docker-based setup** for running a Project Zomboid 
 
 > 💡 **New**: Built-in admin console! Use `docker exec -it zomboid-server admin-console` to access the server administration interface powered by RCON protocol.
 
-## Table of Contents
-
-- [Table of Contents](#table-of-contents)
-- [Features](#features)
-- [Coming Soon](#coming-soon)
-  - [🚀 Ready-to-Use Server Images](#-ready-to-use-server-images)
-  - [🔧 Workshop \& Mod Support](#-workshop--mod-support)
-- [Requirements](#requirements)
-- [How to Run](#how-to-run)
-  - [🔧 Build from Source](#-build-from-source)
-- [Configuration](#configuration)
-  - [1. Server Initialization Flags](#1-server-initialization-flags)
-  - [2. Server Configuration Settings](#2-server-configuration-settings)
-  - [3. Sandbox Variables](#3-sandbox-variables)
-  - [Quick Setup Examples](#quick-setup-examples)
-- [Server Management](#server-management)
-  - [1. 🔗 Connecting to Your Server](#1--connecting-to-your-server)
-  - [2. 🖥️ Accessing Server Console](#2-️-accessing-server-console)
-  - [3. 💾 Volumes and Data Management](#3--volumes-and-data-management)
-  - [4. 🔄 Server Updates](#4--server-updates)
-- [For Developers](#for-developers)
-  - [Development Environment Setup](#development-environment-setup)
-  - [Code Quality Tools](#code-quality-tools)
-  - [Contributing](#contributing)
-- [License](#license)
-- [Support](#support)
-
 ## Features
 
 - 🐳 **Docker-based deployment** - Easy setup and deployment using Docker Compose
@@ -51,6 +24,33 @@ We're working on exciting new features to enhance your Project Zomboid server ex
 
 - **Steam Workshop Integration** - Automatic mod downloading and management
 - **Custom Mod Configurations** - Easy mod setup through environment variables
+
+## Table of Contents
+
+- [Features](#features)
+- [Coming Soon](#coming-soon)
+  - [🚀 Ready-to-Use Server Images](#-ready-to-use-server-images)
+  - [🔧 Workshop \& Mod Support](#-workshop--mod-support)
+- [Table of Contents](#table-of-contents)
+- [Requirements](#requirements)
+- [How to Run](#how-to-run)
+  - [🔧 Build from Source](#-build-from-source)
+- [Configuration](#configuration)
+  - [1. Server Initialization Flags](#1-server-initialization-flags)
+  - [2. Server Configuration Settings](#2-server-configuration-settings)
+  - [3. Sandbox Variables](#3-sandbox-variables)
+  - [Quick Setup Examples](#quick-setup-examples)
+- [Server Management](#server-management)
+  - [1. 🔗 Connecting to Your Server](#1--connecting-to-your-server)
+  - [2. 🖥️ Accessing Server Console](#2-️-accessing-server-console)
+  - [3. 💾 Volumes and Data Management](#3--volumes-and-data-management)
+  - [4. 🔄 Server Updates](#4--server-updates)
+- [For Developers](#for-developers)
+  - [Development Environment Setup](#development-environment-setup)
+  - [Code Quality Tools](#code-quality-tools)
+  - [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
 
 ## Requirements
 

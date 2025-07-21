@@ -4,6 +4,8 @@ services:
     build:
       context: ./zomboid-server
       dockerfile: Dockerfile
+    volumes:
+      - ./data:/root/Zomboid
     ports:
       - 16261:16261/udp # Port for the server
       - 16261:16261/tcp # TCP port for the server

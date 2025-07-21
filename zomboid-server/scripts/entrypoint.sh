@@ -21,6 +21,12 @@ else
 	exit 1
 fi
 
+mkdir -p "${CACHE_DIR}"
+HAS_CONTENTS=$(ls -A "${CACHE_DIR}" 2>/dev/null || true)
+if [[ -z "${HAS_CONTENTS}" ]]; then
+	cp -r /zomboid-data/. "${CACHE_DIR}/"
+fi
+
 echo "updating server configuration with environment variables..."
 
 # Update server configuration for custom settings

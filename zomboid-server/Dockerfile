@@ -16,7 +16,7 @@ RUN chmod +x /scripts/build/*.sh \
 FROM python:3.12-slim AS runtime
 
 COPY --from=build /pzomboid-server /pzomboid-server
-COPY --from=build /root/Zomboid /root/Zomboid
+COPY --from=build /root/Zomboid /zomboid-data
 
 COPY ./scripts /scripts
 COPY ./env /env
