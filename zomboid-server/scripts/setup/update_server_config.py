@@ -21,8 +21,8 @@ if __name__ == "__main__":
     server_name = env_vars["SERVER_NAME"]
     presets_dir = env_vars["PRESETS_DIR"]
 
-    default_config_file = f"{cache_dir}/Server/template.ini"
-    default_sandbox_file = f"{cache_dir}/Server/template_SandboxVars.lua"
+    default_config_file = f"{cache_dir}/Server/servertest.ini"
+    default_sandbox_file = f"{cache_dir}/Server/servertest_SandboxVars.lua"
 
     preset_file = f"{presets_dir}/{selected_preset}.lua" if selected_preset else None
 
