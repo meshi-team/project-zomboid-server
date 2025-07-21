@@ -11,14 +11,12 @@ RUN mkdir -p /pzomboid-server \
 COPY ./scripts/build /scripts/build
 
 RUN chmod +x /scripts/build/*.sh \
-    && /scripts/build/generate-templates.sh
+    && /scripts/build/generate-defaults.sh
 
 FROM python:3.12-slim AS runtime
 
 COPY --from=build /pzomboid-server /pzomboid-server
 COPY --from=build /root/Zomboid /root/Zomboid
-
-VOLUME ["/pzomboid-server", "/root/Zomboid"]
 
 COPY ./scripts /scripts
 COPY ./env /env

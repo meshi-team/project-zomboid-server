@@ -145,7 +145,7 @@ def replace_file_variables(
 
     Reads the specified file, updates lines containing variables found in
     variables_dict, and writes the updated content to a new file whose name
-    replaces 'template' with the given server_name.
+    replaces 'servertest' with the given server_name.
 
     Args:
         file_path (str): Path to the configuration file to update.
@@ -189,7 +189,7 @@ def replace_file_variables(
         else:
             new_lines.append(line)
 
-    new_file_path = file_path.replace("template", server_name)
+    new_file_path = file_path.replace("servertest", server_name)
     logger.info("Writing updated configuration to '%s'.", new_file_path)
 
     with Path(new_file_path).open("w") as file:
