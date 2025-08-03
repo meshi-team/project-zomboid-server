@@ -35,7 +35,7 @@ if [[ -n "${SERVER_NAME}" ]]; then
 fi
 [[ -n "${IP}" ]] && ARGS+=("${IP} -ip" "${IP}")
 [[ -n "${PORT}" ]] && ARGS+=("-port" "${PORT}")
-[[ -n "${STEAM_VAC}" ]] && ARGS+=("-steam_vac" "${STEAM_VAC,,}")
+[[ -n "${STEAM_VAC}" ]] && ARGS+=("-steamvac" "${STEAM_VAC,,}")
 [[ -n "${STEAM_PORT_1}" ]] && ARGS+=("-steamport1" "${STEAM_PORT_1}")
 [[ -n "${STEAM_PORT_2}" ]] && ARGS+=("-steamport2" "${STEAM_PORT_2}")
 
