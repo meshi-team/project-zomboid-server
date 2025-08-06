@@ -9,12 +9,16 @@
 # It waits for up to 120 seconds for the file to be created, then stops the server.
 # If the file is not created within the timeout, it exits with an error.
 #
+# The generated files are copied to /defaults/default_SandboxVars.lua and
+# /defaults/default.ini.
+#
 # Usage:
 #   ./generate-defaults.sh
 #
 
 SERVER_DIR="${SERVER_DIR:-/pzomboid-server}"
 CACHE_DIR="${CACHE_DIR:-/root/Zomboid}"
+DEFAULTS_DIR="${DEFAULTS_DIR:-/defaults}"
 SECONDS=0
 
 set -euo pipefail
@@ -47,6 +51,11 @@ if [[ ! -f "${CACHE_DIR}/Server/servertest_SandboxVars.lua" ]]; then
 	kill "${server_pid}" || true
 	exit 1
 fi
+
+echo "Moving generated config files to ${DEFAULTS_DIR}..."
+mkdir -p "${DEFAULTS_DIR}"
+mv -f "${CACHE_DIR}/Server/servertest_SandboxVars.lua" "${DEFAULTS_DIR}/default_SandboxVars.lua"
+mv -f "${CACHE_DIR}/Server/servertest.ini" "${DEFAULTS_DIR}/default.ini"
 
 echo "File generated. Stopping server (PID: ${server_pid})..."
 kill "${server_pid}" || true

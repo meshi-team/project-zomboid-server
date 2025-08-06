@@ -27,8 +27,6 @@ if [[ -z "${HAS_CONTENTS}" ]]; then
 	cp -r /zomboid-data/. "${CACHE_DIR}/"
 fi
 
-echo "updating server configuration with environment variables..."
-
 # Update server configuration for custom settings
 if [[ -f "${SERVER_CONFIG_UPDATE_SCRIPT}" ]]; then
 	(cd "${DIR}/setup" && python3 update_server_config.py)
@@ -41,6 +39,9 @@ if [[ ! -x "${SERVER_INIT_SCRIPT}" ]]; then
 	echo "Error: Server initialization script not found or not executable: ${SERVER_INIT_SCRIPT}"
 	exit 1
 fi
+
+echo "Server configuration has been updated. Continuing in 5 seconds..."
+sleep 5
 
 # Execute the server initialization script
 # If no arguments are provided, run the server as default
