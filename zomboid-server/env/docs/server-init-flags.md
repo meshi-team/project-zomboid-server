@@ -55,11 +55,12 @@ The following table shows all variables you can override, their purpose, and def
 | `DEBUG`          | Enable debug mode for verbose logging (0=False, 1=True)    | `0`                                      |
 | `ADMIN_USERNAME` | Default administrator username                             | `admin`                                  |
 | `ADMIN_PASSWORD` | Default administrator password                             | `admin`                                  |
-| `IP`             | IP address for the server to bind to                       | `0.0.0.0`                                |
+| `IP`             | IP address for the server to bind to                       | _(empty)_                                |
 | `PORT`           | Primary server port for client connections                 | `16261`                                  |
 | `STEAM_VAC`      | Enable Steam VAC (Valve Anti-Cheat)                        | `true`                                   |
 | `STEAM_PORT_1`   | First Steam communication port                             | _(empty)_                                |
 | `STEAM_PORT_2`   | Second Steam communication port                            | _(empty)_                                |
+| `MODFOLDERS`     | Comma-separated list of mod folder names                   | `steam,mods,workshop`                    |
 
 ## Most Common Variables to Change
 

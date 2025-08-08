@@ -37,11 +37,12 @@ CACHE_DIR="${CACHE_DIR:-/root/Zomboid}"
 DEBUG="${DEBUG:-0}" # 0 = False, 1 = True
 ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin}"
-IP="${IP:-0.0.0.0}"
+IP="${IP:-}"
 PORT="${PORT:-16261}"
 STEAM_VAC="${STEAM_VAC:-true}"
 STEAM_PORT_1="${STEAM_PORT_1:-}"
 STEAM_PORT_2="${STEAM_PORT_2:-}"
 
+MODFOLDERS="${MODFOLDERS:-steam,mods,workshop}"
 # Disable automatic export
 set +a

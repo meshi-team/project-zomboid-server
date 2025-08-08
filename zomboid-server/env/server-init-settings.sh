@@ -177,10 +177,10 @@ KICK_FAST_PLAYERS="${KICK_FAST_PLAYERS:-not-custom-set}"
 SERVER_PLAYER_ID="${SERVER_PLAYER_ID:-not-custom-set}"
 
 # The port for the RCON (Remote Console)
-RCON_PORT="${RCON_PORT:-not-custom-set}"
+RCON_PORT="${RCON_PORT:-27015}"
 
 # RCON password (Pick a strong password)
-RCON_PASSWORD="${RCON_PASSWORD:-not-custom-set}"
+RCON_PASSWORD="${RCON_PASSWORD:-admin}"
 
 # Enables global text chat integration with a Discord channel
 DISCORD_ENABLE="${DISCORD_ENABLE:-not-custom-set}"
