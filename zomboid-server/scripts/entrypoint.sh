@@ -27,6 +27,8 @@ if [[ -z "${HAS_CONTENTS}" ]]; then
 	cp -r /zomboid-data/. "${CACHE_DIR}/"
 fi
 
+chmod -R 777 "${CACHE_DIR}"
+
 # Update server configuration for custom settings
 if [[ -f "${SERVER_CONFIG_UPDATE_SCRIPT}" ]]; then
 	(cd "${DIR}/setup" && python3 update_server_config.py)

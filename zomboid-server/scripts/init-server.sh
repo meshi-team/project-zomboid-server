@@ -15,34 +15,35 @@ set -eo pipefail
 START_SCRIPT="${SERVER_DIR}/start-server.sh"
 
 # Argument array for the server start command
-ARGS=()
+ARGS=""
 
 # Java args
-[[ -n "${SERVER_MEMORY}" ]] && ARGS+=("-Xmx${SERVER_MEMORY}" "-Xms${SERVER_MEMORY}")
-[[ "${SOFTRESET,,}" =~ ^(1|true)$ ]] && ARGS+=("-Dsoftreset")
-ARGS+=("--")
+[[ -n "${SERVER_MEMORY}" ]] && ARGS+=" -Xmx${SERVER_MEMORY} -Xms${SERVER_MEMORY}"
+[[ "${SOFTRESET,,}" =~ ^(1|true)$ ]] && ARGS+=" -Dsoftreset"
+ARGS+=" --"
 
 # Config args
-[[ "${COOP_SERVER,,}" =~ ^(1|true)$ ]] && ARGS+=("-coop")
-[[ "${NO_STEAM,,}" =~ ^(1|true)$ ]] && ARGS+=("-nosteam")
-[[ -n "${CACHE_DIR}" ]] && ARGS+=("-cachedir" "${CACHE_DIR}")
-[[ "${DEBUG,,}" =~ ^(1|true)$ ]] && ARGS+=("-debug")
-[[ -n "${ADMIN_USERNAME}" ]] && ARGS+=("-adminusername" "${ADMIN_USERNAME}")
-[[ -n "${ADMIN_PASSWORD}" ]] && ARGS+=("-adminpassword" "${ADMIN_PASSWORD}")
+[[ -n "${MODFOLDERS}" ]] && ARGS+=" -modfolders ${MODFOLDERS}"
+[[ "${COOP_SERVER,,}" =~ ^(1|true)$ ]] && ARGS+=" -coop"
+[[ "${NO_STEAM,,}" =~ ^(1|true)$ ]] && ARGS+=" -nosteam"
+[[ -n "${CACHE_DIR}" ]] && ARGS+=" -cachedir=${CACHE_DIR}"
+[[ "${DEBUG,,}" =~ ^(1|true)$ ]] && ARGS+=" -debug"
+[[ -n "${ADMIN_USERNAME}" ]] && ARGS+=" -adminusername ${ADMIN_USERNAME}"
+[[ -n "${ADMIN_PASSWORD}" ]] && ARGS+=" -adminpassword ${ADMIN_PASSWORD}"
 if [[ -n "${SERVER_NAME}" ]]; then
 	SERVER_NAME="${SERVER_NAME// /-}"
-	ARGS+=("-servername" "${SERVER_NAME}")
+	ARGS+=" -servername ${SERVER_NAME}"
 fi
-[[ -n "${IP}" ]] && ARGS+=("${IP} -ip" "${IP}")
-[[ -n "${PORT}" ]] && ARGS+=("-port" "${PORT}")
-[[ -n "${STEAM_VAC}" ]] && ARGS+=("-steamvac" "${STEAM_VAC,,}")
-[[ -n "${STEAM_PORT_1}" ]] && ARGS+=("-steamport1" "${STEAM_PORT_1}")
-[[ -n "${STEAM_PORT_2}" ]] && ARGS+=("-steamport2" "${STEAM_PORT_2}")
+[[ -n "${IP}" ]] && ARGS+=" -ip ${IP}"
+[[ -n "${PORT}" ]] && ARGS+=" -port ${PORT}"
+[[ -n "${STEAM_VAC}" ]] && ARGS+=" -steamvac ${STEAM_VAC,,}"
+[[ -n "${STEAM_PORT_1}" ]] && ARGS+=" -steamport1 ${STEAM_PORT_1}"
+[[ -n "${STEAM_PORT_2}" ]] && ARGS+=" -steamport2 ${STEAM_PORT_2}"
 
 # Definición de entorno para Java
 export LD_LIBRARY_PATH="${SERVER_DIR}/jre64/lib:${LD_LIBRARY_PATH:-}"
 export LANG="${LANG:-en_US.UTF-8}"
 
 # Ejecuta el script de inicio del servidor
-echo "Starting Project Zomboid server with arguments: ${ARGS[*]}"
-exec "${START_SCRIPT}" "${ARGS[@]}"
+echo "Starting Project Zomboid server with arguments:${ARGS}"
+exec "${START_SCRIPT}" "${ARGS}"
