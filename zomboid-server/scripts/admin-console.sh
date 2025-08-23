@@ -25,22 +25,10 @@
 
 set -euo pipefail
 
-# Get script directory for relative path resolution
-SCRIPTS_DIR=/scripts
-ENV_SCRIPT="${SCRIPTS_DIR}/load-env.sh"
-
-# Source environment variables if available
-if [[ -f "${ENV_SCRIPT}" ]]; then
-	# shellcheck source=load-env.sh
-	source "${ENV_SCRIPT}"
-else
-	echo "Warning: Environment script not found: ${ENV_SCRIPT}"
-	echo "Using default/manual environment variables..."
-fi
-
 # Set default values for RCON connection
 RCON_HOST="${RCON_HOST:-localhost}"
 RCON_PORT="${RCON_PORT:-27015}"
+RCON_PASSWORD="${RCON_PASSWORD:-admin}"
 
 echo "Connecting to Project Zomboid RCON console..."
 echo "Host: ${RCON_HOST}"

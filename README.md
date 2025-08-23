@@ -113,12 +113,12 @@ We're working on exciting new features to enhance your Project Zomboid server ex
 
 **💡 All server options can be easily customized using Docker environment variables** - simply add any variable to your `docker-compose.yml` environment section or use the `-e` flag with `docker run`.
 
-The server uses three configuration files located in `zomboid-server/env/` that define different aspects of your server. Each file has comprehensive documentation available in the `zomboid-server/env/docs/` folder to help you understand all available options.
+The server exposes three configuration groups that define different aspects of your server. Documentation for each is available in the `zomboid-server/docs/` folder to help you understand all available options.
 
 ### 1. Server Initialization Flags
 
 **File**: `server-init-flags.sh`  
-**Documentation**: [📖 server-init-flags.md](zomboid-server/env/docs/server-init-flags.md)
+**Documentation**: [📖 server-init-flags.md](zomboid-server/docs/server-init-flags.md)
 
 Controls basic server startup parameters and command-line flags:
 
@@ -133,12 +133,12 @@ environment:
 
 **Key variables**: `SERVER_NAME`, `SERVER_MEMORY`, `PORT`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `COOP_SERVER`, `NO_STEAM`, `DEBUG`
 
-> 📚 **[View complete list of startup flags →](zomboid-server/env/docs/server-init-flags.md)**
+> 📚 **[View complete list of startup flags →](zomboid-server/docs/server-init-flags.md)**
 
 ### 2. Server Configuration Settings
 
 **File**: `server-init-settings.sh`  
-**Documentation**: [📖 server-init-settings.md](zomboid-server/env/docs/server-init-settings.md)
+**Documentation**: [📖 server-init-settings.md](zomboid-server/docs/server-init-settings.md)
 
 Controls gameplay mechanics, multiplayer features, and server behavior with 90+ variables:
 
@@ -154,12 +154,12 @@ environment:
 
 **Key variables**: `PVP`, `MAX_PLAYERS`, `PUBLIC`, `PUBLIC_NAME`, `GLOBAL_CHAT`, `VOICE_ENABLE`, `PASSWORD`, `RCON_PASSWORD`
 
-> 📚 **[View complete list of server settings →](zomboid-server/env/docs/server-init-settings.md)**
+> 📚 **[View complete list of server settings →](zomboid-server/docs/server-init-settings.md)**
 
 ### 3. Sandbox Variables
 
 **File**: `server-sandbox-vars.sh`  
-**Documentation**: [📖 server-sandbox-vars.md](zomboid-server/env/docs/server-sandbox-vars.md)
+**Documentation**: [📖 server-sandbox-vars.md](zomboid-server/docs/server-sandbox-vars.md)
 
 Controls world generation, zombie behavior, loot spawning, and survival mechanics with 100+ variables:
 
@@ -175,7 +175,7 @@ environment:
 
 **Key variables**: `ZOMBIES`, `SPEED`, `STRENGTH`, `FOOD_LOOT`, `WEAPON_LOOT`, `XP_MULTIPLIER`, `DAY_LENGTH`, `CAR_SPAWN_RATE`
 
-> 📚 **[View complete list of sandbox variables →](zomboid-server/env/docs/server-sandbox-vars.md)**
+> 📚 **[View complete list of sandbox variables →](zomboid-server/docs/server-sandbox-vars.md)**
 
 ### Quick Setup Examples
 

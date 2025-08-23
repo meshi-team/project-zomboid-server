@@ -55,10 +55,10 @@ def load_custom_variables() -> dict:
 
     Returns:
         dict: A dictionary containing the custom environment variables as
-            key-value pairs, excluding those with 'no-custom-set' value.
+            key-value pairs (only variables present in the environment).
 
     """
-    return {k: v for k, v in dict(os.environ).items() if v != "not-custom-set"}
+    return dict(os.environ)
 
 
 def convert_to_flatcase(text: str) -> str:

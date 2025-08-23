@@ -43,6 +43,9 @@ STEAM_VAC="${STEAM_VAC:-true}"
 STEAM_PORT_1="${STEAM_PORT_1:-}"
 STEAM_PORT_2="${STEAM_PORT_2:-}"
 
+RCON_PORT="${RCON_PORT:-27015}"
+RCON_PASSWORD="${RCON_PASSWORD:-admin}"
+
 MODFOLDERS="${MODFOLDERS:-steam,mods,workshop}"
 # Disable automatic export
 set +a
