@@ -20,7 +20,6 @@ COPY --from=build /root/Zomboid /zomboid-data
 COPY --from=build /defaults /defaults
 
 COPY ./scripts /scripts
-COPY ./env /env
 
 ARG RCON_CLI_VERSION=0.10.3
 ENV RCON_CLI_DOWNLOAD_URL="https://github.com/gorcon/rcon-cli/releases/download/v${RCON_CLI_VERSION}/rcon-${RCON_CLI_VERSION}-amd64_linux.tar.gz"

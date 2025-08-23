@@ -8,16 +8,16 @@
 # and starts the Project Zomboid server using the final configuration.
 
 DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-ENV_SCRIPT="${DIR}/load-env.sh"
+FLAGS_SCRIPT="${DIR}/server-init-flags.sh"
 SERVER_INIT_SCRIPT="${DIR}/init-server.sh"
 SERVER_CONFIG_UPDATE_SCRIPT="${DIR}/setup/update_server_config.py"
 
-# Source environment variables
-if [[ -f "${ENV_SCRIPT}" ]]; then
-	# shellcheck source=load-env.sh
-	source "${ENV_SCRIPT}"
+# Source server start flags vars
+if [[ -f "${FLAGS_SCRIPT}" ]]; then
+	# shellcheck source=server-init-flags.sh
+	source "${FLAGS_SCRIPT}"
 else
-	echo "Error: Environment script not found: ${ENV_SCRIPT}"
+	echo "Error: Server init flags script not found: ${FLAGS_SCRIPT}"
 	exit 1
 fi
 
