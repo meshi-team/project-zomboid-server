@@ -22,29 +22,8 @@ COPY --from=build /defaults /defaults
 COPY ./scripts /scripts
 
 ARG RCON_CLI_VERSION=0.10.3
-ENV RCON_CLI_DOWNLOAD_URL="https://github.com/gorcon/rcon-cli/releases/download/v${RCON_CLI_VERSION}/rcon-${RCON_CLI_VERSION}-amd64_linux.tar.gz"
 
-# Install RCON CLI tool and setup admin console
-RUN set -eux; \
-    # Install dependencies
-    apt-get update; \
-    apt-get install -y --no-install-recommends wget; \
-    \
-    # Download and install RCON CLI
-    wget "${RCON_CLI_DOWNLOAD_URL}" -O rcon.tar.gz; \
-    tar -xzf rcon.tar.gz; \
-    mv "rcon-${RCON_CLI_VERSION}-amd64_linux/rcon" /usr/local/bin/rcon; \
-    \
-    # Install admin console script
-    mv /scripts/admin-console.sh /usr/local/bin/admin-console; \
-    chmod +x /usr/local/bin/admin-console; \
-    \
-    # Make all scripts executable
-    chmod +x /scripts/*.sh; \
-    \
-    # Cleanup
-    rm -rf rcon.tar.gz "rcon-${RCON_CLI_VERSION}-amd64_linux"; \
-    apt-get purge -y --auto-remove wget; \
-    rm -rf /var/lib/apt/lists/*
+RUN bash /scripts/build/install-admin-console.sh \
+    && chmod +x /scripts/*.sh
 
 ENTRYPOINT ["bash", "/scripts/entrypoint.sh"]
