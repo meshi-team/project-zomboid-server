@@ -10,7 +10,7 @@
 DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 FLAGS_SCRIPT="${DIR}/server-init-flags.sh"
 SERVER_INIT_SCRIPT="${DIR}/init-server.sh"
-SERVER_CONFIG_UPDATE_SCRIPT="${DIR}/setup/update_server_config.py"
+SERVER_CONFIG_UPDATE_SCRIPT="${DIR}/config/main.py"
 
 # Source server start flags vars
 if [[ -f "${FLAGS_SCRIPT}" ]]; then
@@ -31,7 +31,8 @@ chmod -R 777 "${CACHE_DIR}"
 
 # Update server configuration for custom settings
 if [[ -f "${SERVER_CONFIG_UPDATE_SCRIPT}" ]]; then
-	(cd "${DIR}/setup" && python3 update_server_config.py)
+	cd "$(dirname "${SERVER_CONFIG_UPDATE_SCRIPT}")" || echo "Error: Failed to change directory"
+	python3 "$(basename "${SERVER_CONFIG_UPDATE_SCRIPT}")"
 else
 	echo "Warning: Server configuration update script not found: ${SERVER_CONFIG_UPDATE_SCRIPT}"
 	exit 1

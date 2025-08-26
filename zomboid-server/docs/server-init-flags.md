@@ -40,27 +40,28 @@ services:
 
 The following table shows all variables you can override, their purpose, and default values:
 
-| Variable Name    | Description                                                | Default Value                            |
-| ---------------- | ---------------------------------------------------------- | ---------------------------------------- |
-| `SERVER_DIR`     | Root directory for the Project Zomboid server installation | `/pzomboid-server`                       |
-| `PRESETS_DIR`    | Directory containing sandbox preset configurations         | `${SERVER_DIR}/media/lua/shared/Sandbox` |
-| `ZOMBOID_APP_ID` | Steam application ID for Project Zomboid                   | `380870`                                 |
-| `SERVER_PRESET`  | Sandbox preset configuration to use                        | _(empty)_                                |
-| `SERVER_MEMORY`  | Maximum memory allocation for the Java process             | `2048m`                                  |
-| `SOFTRESET`      | Enable soft reset functionality (0=False, 1=True)          | `0`                                      |
-| `SERVER_NAME`    | Display name for the server                                | `servertest`                             |
-| `COOP_SERVER`    | Enable cooperative multiplayer mode (0=False, 1=True)      | `0`                                      |
-| `NO_STEAM`       | Disable Steam integration (0=False, 1=True)                | `0`                                      |
-| `CACHE_DIR`      | Directory for server cache and temporary files             | `/root/Zomboid`                          |
-| `DEBUG`          | Enable debug mode for verbose logging (0=False, 1=True)    | `0`                                      |
-| `ADMIN_USERNAME` | Default administrator username                             | `admin`                                  |
-| `ADMIN_PASSWORD` | Default administrator password                             | `admin`                                  |
-| `IP`             | IP address for the server to bind to                       | _(empty)_                                |
-| `PORT`           | Primary server port for client connections                 | `16261`                                  |
-| `STEAM_VAC`      | Enable Steam VAC (Valve Anti-Cheat)                        | `true`                                   |
-| `STEAM_PORT_1`   | First Steam communication port                             | _(empty)_                                |
-| `STEAM_PORT_2`   | Second Steam communication port                            | _(empty)_                                |
-| `MODFOLDERS`     | Comma-separated list of mod folder names                   | `steam,mods,workshop`                    |
+| Variable Name    | Description                                                                                                                                                              | Default Value                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------- |
+| `SERVER_DIR`     | Root directory for the Project Zomboid server installation                                                                                                               | `/pzomboid-server`                       |
+| `PRESETS_DIR`    | Directory containing sandbox preset configurations                                                                                                                       | `${SERVER_DIR}/media/lua/shared/Sandbox` |
+| `ZOMBOID_APP_ID` | Steam application ID for Project Zomboid                                                                                                                                 | `380870`                                 |
+| `SERVER_PRESET`  | Sandbox preset configuration to use                                                                                                                                      | _(empty)_                                |
+| `FORCE_PRESET`   | When set to `1`, force-apply `SERVER_PRESET` even if a SandboxVars file already exists (overwrites current). Use to apply a new preset on an already initialized server. | `0`                                      |
+| `SERVER_MEMORY`  | Maximum memory allocation for the Java process                                                                                                                           | `2048m`                                  |
+| `SOFTRESET`      | Enable soft reset functionality (0=False, 1=True)                                                                                                                        | `0`                                      |
+| `SERVER_NAME`    | Display name for the server                                                                                                                                              | `servertest`                             |
+| `COOP_SERVER`    | Enable cooperative multiplayer mode (0=False, 1=True)                                                                                                                    | `0`                                      |
+| `NO_STEAM`       | Disable Steam integration (0=False, 1=True)                                                                                                                              | `0`                                      |
+| `CACHE_DIR`      | Directory for server cache and temporary files                                                                                                                           | `/root/Zomboid`                          |
+| `DEBUG`          | Enable debug mode for verbose logging (0=False, 1=True)                                                                                                                  | `0`                                      |
+| `ADMIN_USERNAME` | Default administrator username                                                                                                                                           | `admin`                                  |
+| `ADMIN_PASSWORD` | Default administrator password                                                                                                                                           | `admin`                                  |
+| `IP`             | IP address for the server to bind to                                                                                                                                     | _(empty)_                                |
+| `PORT`           | Primary server port for client connections                                                                                                                               | `16261`                                  |
+| `STEAM_VAC`      | Enable Steam VAC (Valve Anti-Cheat)                                                                                                                                      | `true`                                   |
+| `STEAM_PORT_1`   | First Steam communication port                                                                                                                                           | _(empty)_                                |
+| `STEAM_PORT_2`   | Second Steam communication port                                                                                                                                          | _(empty)_                                |
+| `MODFOLDERS`     | Comma-separated list of mod folder names                                                                                                                                 | `steam,mods,workshop`                    |
 
 ## Most Common Variables to Change
 

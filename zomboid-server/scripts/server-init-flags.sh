@@ -23,6 +23,7 @@ SERVER_DIR="${SERVER_DIR:-/pzomboid-server}"
 PRESETS_DIR="${PRESETS_DIR:-${SERVER_DIR}/media/lua/shared/Sandbox}"
 ZOMBOID_APP_ID="${ZOMBOID_APP_ID:-380870}"
 SERVER_PRESET="${SERVER_PRESET:-}"
+FORCE_PRESET="${FORCE_PRESET:-0}" # 0 = False, 1 = True
 DEFAULTS_DIR="${DEFAULTS_DIR:-/defaults}"
 
 # Java and memory settings
