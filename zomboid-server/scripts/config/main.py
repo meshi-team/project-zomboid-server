@@ -1,26 +1,25 @@
-from server_config import (
-    replace_file_variables,
-    validate_config_file,
-    validate_sandbox_file,
-)
-from utils import load_custom_variables, setup_logger
+from server_manager import ProjectZomboidServerManager
+from utils import load_custom_variables
+from workshop_manager import ProjectZomboidWorkshopManager
 
 
 def main() -> None:
     """Run the main routine."""
-    logger = setup_logger()
+    # Load the needed environment variables
     variables = load_custom_variables()
-    server_name = variables["SERVER_NAME"]
+    server_folder = variables.get("SERVER_DIR")
+    steam_workshop_folder = variables.get("STEAM_WORKSHOP_DEFAULT_DIR")
 
-    logger.info("Validating configuration for server: %s", server_name)
-    sandbox_path = validate_sandbox_file(server_name, variables)
-    config_path = validate_config_file(server_name, variables)
+    # Exectute the workshop manager first to ensure mods are in place
+    wk_manager = ProjectZomboidWorkshopManager(server_folder, steam_workshop_folder)
+    wk_manager.process_workshop_items()
 
-    logger.info("Applying variable replacements in config files.")
-    replace_file_variables(config_path, variables)
-    replace_file_variables(sandbox_path, variables)
+    # Update the WORKSHOP_ITEMS variable to reflect only successfully processed items
+    variables["WORKSHOP_ITEMS"] = ";".join(wk_manager.server_workshop_items)
 
-    logger.info("Configuration process completed.")
+    # Then proceed with server configuration
+    server_manager = ProjectZomboidServerManager(variables)
+    server_manager.apply_configuration()
 
 
 if __name__ == "__main__":

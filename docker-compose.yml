@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./data:/root/Zomboid
+      - ./workshop:/root/.local/share/Steam/steamapps/workshop
     ports:
       - 16261:16261/udp # Port for the server
       - 16261:16261/tcp # TCP port for the server

@@ -52,5 +52,5 @@ if [[ $# -eq 0 ]]; then
 	exec "${SERVER_INIT_SCRIPT}"
 fi
 
-# Excecute the Command passed to the container
+# Execute the Command passed to the container
 exec "$@"

@@ -6,7 +6,7 @@ exclude = [
   ".github",
 ]
 
-line-length   = 88
+line-length   = 120
 indent-width  = 4
 target-version = "py312"
 
@@ -17,6 +17,7 @@ ignore       = [
   "INP001",
   "ERA001",
   "PLW2901",
+  "TRY400",
 ]
 fixable      = ["ALL"]
 

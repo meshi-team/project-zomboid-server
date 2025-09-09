@@ -1,29 +1,29 @@
-FROM ghcr.io/steamcmd/steamcmd:ubuntu-24 AS build
+FROM ghcr.io/steamcmd/steamcmd:ubuntu-24
 
-ENV ZOMBOID_APP_ID=380870
+ARG RCON_CLI_VERSION=0.10.3
+ENV ZOMBOID_SERVER_APP_ID=380870
+ENV ZOMBOID_GAME_APP_ID=108600
+
+ENV STEAM_WORKSHOP_DEFAULT_DIR=/root/.local/share/Steam/steamapps/workshop
+ENV CACHE_DIR=/root/Zomboid
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 python3-pip python3-venv \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /pzomboid-server \
     && steamcmd +login anonymous \
     +force_install_dir /pzomboid-server \
-    +app_update ${ZOMBOID_APP_ID} validate \
+    +app_update ${ZOMBOID_SERVER_APP_ID} validate \
     +quit
 
-COPY ./scripts/build /scripts/build
-
-RUN chmod +x /scripts/build/*.sh \
-    && /scripts/build/generate-defaults.sh
-
-FROM python:3.12-slim AS runtime
-
-COPY --from=build /pzomboid-server /pzomboid-server
-COPY --from=build /root/Zomboid /zomboid-data
-COPY --from=build /defaults /defaults
+VOLUME ["${STEAM_WORKSHOP_DEFAULT_DIR}", "${CACHE_DIR}"]
 
 COPY ./scripts /scripts
 
-ARG RCON_CLI_VERSION=0.10.3
-
-RUN bash /scripts/build/install-admin-console.sh \
-    && chmod +x /scripts/*.sh
+RUN chmod -R a+x /scripts \
+    && /scripts/build/generate-defaults.sh \
+    && /scripts/build/install-admin-console.sh \
+    && cp -r /pzomboid-server /root/Zomboid
 
 ENTRYPOINT ["bash", "/scripts/entrypoint.sh"]
