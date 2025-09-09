@@ -1,7 +1,9 @@
 import logging
 import os
 import re
+import shutil
 import sys
+from pathlib import Path
 
 REGEX = re.compile(
     r"^(.*?)(\b\w+\b)(\s*=\s*)(\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*'|.*?)(?=\s*,?\s*(?:#.*)?$)(\s*,?\s*(?:#.*)?)$",
@@ -78,3 +80,37 @@ def convert_to_flatcase(text: str) -> str:
 
     text = text.lower().strip()
     return re.sub(r"[-_\s]", "", text)
+
+
+def generate_symlink(source: Path, target: Path) -> bool:
+    """Create or update a symbolic link from ``target`` pointing to ``source``.
+
+    Args:
+        source (Path): The source path (usually an existing directory).
+        target (Path): The link path to create/update.
+
+    Returns:
+        bool: True if the link points to the desired source or was created successfully;
+              False if an OS error occurred while creating/updating the link.
+
+    """
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        if target.is_symlink():
+            current = target.readlink()
+            if str(current) != str(source):
+                target.unlink()
+                target.symlink_to(source)
+        elif target.exists():
+            if target.is_dir():
+                shutil.rmtree(target)
+            else:
+                target.unlink()
+            target.symlink_to(source)
+        else:
+            target.symlink_to(source)
+    except OSError:
+        return False
+
+    return True

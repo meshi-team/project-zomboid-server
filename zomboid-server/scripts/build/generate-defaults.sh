@@ -54,8 +54,18 @@ fi
 
 echo "Moving generated config files to ${DEFAULTS_DIR}..."
 mkdir -p "${DEFAULTS_DIR}"
-mv -f "${CACHE_DIR}/Server/servertest_SandboxVars.lua" "${DEFAULTS_DIR}/default_SandboxVars.lua"
-mv -f "${CACHE_DIR}/Server/servertest.ini" "${DEFAULTS_DIR}/default.ini"
+
+shopt -s nullglob
+for src in "${CACHE_DIR}/Server"/servertest*; do
+	if [[ -f "${src}" ]]; then
+		base="$(basename "${src}")"
+		dest_suffix="${base#servertest}"
+		dest="${DEFAULTS_DIR}/default${dest_suffix}"
+		echo "  - ${base} -> $(basename "${dest}")"
+		mv -f -- "${src}" "${dest}"
+	fi
+done
+shopt -u nullglob
 
 echo "File generated. Stopping server (PID: ${server_pid})..."
 kill "${server_pid}" || true
