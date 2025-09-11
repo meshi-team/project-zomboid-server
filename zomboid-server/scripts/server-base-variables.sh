@@ -1,5 +1,5 @@
 #!/bin/bash
-# Project Zomboid Server Argument Flags
+# Project Zomboid Server base environment variables
 #
 # This script defines default environment variables for the Project Zomboid
 # dedicated server startup script (start-server.sh). These variables can
@@ -8,13 +8,13 @@
 #
 # Usage:
 #   Source this file before running start-server.sh:
-#   source ./server-init-flags.sh
+#   source ./server-base-variables.sh
 #   ./start-server.sh
 #
 # Docker Usage:
 #   Override any variable using Docker's -e flag:
 #   docker run -e SERVER_NAME="MyServer" -e PORT="16262" <image>
-
+#
 # Enable automatic export of all variables
 set -a
 
@@ -43,12 +43,13 @@ PORT="${PORT:-16261}"
 STEAM_VAC="${STEAM_VAC:-true}"
 STEAM_PORT_1="${STEAM_PORT_1:-}"
 STEAM_PORT_2="${STEAM_PORT_2:-}"
+MODFOLDERS="${MODFOLDERS:-steam,mods,workshop}"
 
+# Remote console (RCON) settings
 RCON_PORT="${RCON_PORT:-27015}"
 RCON_PASSWORD="${RCON_PASSWORD:-admin}"
 
-MODFOLDERS="${MODFOLDERS:-steam,mods,workshop}"
-
+# Set Project Zomboid version if available
 if [[ -z "${PZ_VERSION:-}" && -f /PZ_VERSION ]]; then
 	PZ_VERSION="$(cat /PZ_VERSION 2>/dev/null || echo unknown)"
 fi
