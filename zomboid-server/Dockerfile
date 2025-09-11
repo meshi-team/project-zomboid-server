@@ -23,6 +23,8 @@ COPY ./scripts /scripts
 
 RUN chmod -R a+x /scripts \
     && /scripts/build/generate-defaults.sh \
-    && /scripts/build/install-admin-console.sh
+    && /scripts/build/install-admin-console.sh \
+    && PZ_VERSION=$(/scripts/build/find_server_version.sh || echo failed-to-retreive) \
+    && echo "${PZ_VERSION}" > /PZ_VERSION
 
 ENTRYPOINT ["bash", "/scripts/entrypoint.sh"]
