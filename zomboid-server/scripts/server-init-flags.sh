@@ -48,5 +48,10 @@ RCON_PORT="${RCON_PORT:-27015}"
 RCON_PASSWORD="${RCON_PASSWORD:-admin}"
 
 MODFOLDERS="${MODFOLDERS:-steam,mods,workshop}"
+
+if [[ -z "${PZ_VERSION:-}" && -f /PZ_VERSION ]]; then
+	PZ_VERSION="$(cat /PZ_VERSION 2>/dev/null || echo unknown)"
+fi
+
 # Disable automatic export
 set +a
