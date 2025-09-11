@@ -23,7 +23,6 @@ COPY ./scripts /scripts
 
 RUN chmod -R a+x /scripts \
     && /scripts/build/generate-defaults.sh \
-    && /scripts/build/install-admin-console.sh \
-    && cp -r /pzomboid-server /root/Zomboid
+    && /scripts/build/install-admin-console.sh
 
 ENTRYPOINT ["bash", "/scripts/entrypoint.sh"]
