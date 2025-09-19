@@ -3,7 +3,7 @@
 import os
 
 from server_manager import ProjectZomboidServerManager
-from utils import load_custom_variables, setup_logger
+from utils import load_custom_variables, log_section, setup_logger
 from workshop_manager import ProjectZomboidWorkshopManager
 
 
@@ -16,8 +16,7 @@ def main() -> None:
     steam_workshop_folder = variables.get("STEAM_WORKSHOP_DEFAULT_DIR")
 
     # Exectute the workshop manager first to ensure mods are in place
-    logger.info("-" * 40)
-    logger.info("WORKSHOP MANAGEMENT")
+    log_section(logger, "Workshop management")
 
     wk_manager = ProjectZomboidWorkshopManager(server_folder, steam_workshop_folder)
     wk_manager.process_workshop_items()
@@ -30,8 +29,7 @@ def main() -> None:
     if os.getenv("MAP"):
         variables["MAP"] = os.getenv("MAP")
 
-    logger.info("-" * 40)
-    logger.info("SERVER CONFIGURATION")
+    log_section(logger, "Server configuration")
 
     # Then proceed with server configuration
     server_manager = ProjectZomboidServerManager(variables)
