@@ -8,7 +8,13 @@ mapping. Mirrors the style and responsibilities of the workshop manager.
 import re
 from pathlib import Path
 
-from utils import REGEX, convert_to_flatcase, is_line_valid, setup_logger
+from utils import (
+    REGEX,
+    convert_to_flatcase,
+    is_line_valid,
+    log_rule,
+    setup_logger,
+)
 
 
 class ProjectZomboidServerManager:
@@ -67,7 +73,7 @@ class ProjectZomboidServerManager:
         else:
             self.logger.info("Config file exists, using it as is")
 
-        self.logger.info("-" * 40)
+        log_rule(self.logger)
         return config_file
 
     def validate_sandbox_file(self) -> str:
@@ -96,7 +102,7 @@ class ProjectZomboidServerManager:
             if self.selected_preset
             else None
         )
-
+        log_rule(self.logger)
         self.logger.info("Validating SandboxVars for server: %s", self.server_name)
         if preset_file and not Path(preset_file).exists():
             preset_file = None
@@ -111,7 +117,7 @@ class ProjectZomboidServerManager:
             default_path = Path(preset_file) if preset_file else Path(default_file)
         else:
             self.logger.info(
-                "SandboxVars file exists, using it as base%s",
+                "SandboxVars file exists, using it as base %s",
                 " (forcing preset)" if self.force_preset else "",
             )
             default_path = Path(sandbox_file)
@@ -126,7 +132,7 @@ class ProjectZomboidServerManager:
         Path(sandbox_file).parent.mkdir(parents=True, exist_ok=True)
         Path(sandbox_file).write_text(default_content, encoding="utf-8")
 
-        self.logger.info("-" * 40)
+        log_rule(self.logger)
         return sandbox_file
 
     def replace_file_variables(self, file_path: str) -> None:
@@ -147,7 +153,7 @@ class ProjectZomboidServerManager:
         updated_lines = 0
         flat_variables_dict = {convert_to_flatcase(k): v for k, v in self.env.items()}
 
-        logger.info("Replacing variables in file: %s", file_path)
+        logger.info("Replacing variables in file: %s", Path(file_path).name)
         with Path(file_path).open(encoding="utf-8") as file:
             lines = file.readlines()
 
@@ -187,7 +193,7 @@ class ProjectZomboidServerManager:
             file.writelines(new_lines)
 
         logger.info("Total lines updated: %d", updated_lines)
-        self.logger.info("-" * 40)
+        log_rule(self.logger)
 
     def apply_configuration(self) -> tuple[str, str]:
         """Validate/create INI and SandboxVars, then apply replacements to both.
@@ -203,5 +209,5 @@ class ProjectZomboidServerManager:
         self.replace_file_variables(sandbox_path)
 
         self.logger.info("Configuration applied successfully.")
-        self.logger.info("-" * 40)
+        log_rule(self.logger)
         return config_path, sandbox_path

@@ -27,6 +27,31 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
+# Pretty logging helpers
+_RULE_WIDTH = 50
+
+
+def log_rule(logger: logging.Logger, char: str = "-") -> None:
+    """Print a horizontal rule using the provided character."""
+    logger.info(char * _RULE_WIDTH)
+
+
+def log_section(logger: logging.Logger, title: str) -> None:
+    """Print a well-formatted section header."""
+    logger.info("")
+    logger.info("%s", "=" * _RULE_WIDTH)
+    logger.info("%s", title.upper())
+    logger.info("%s", "=" * _RULE_WIDTH)
+
+
+def short_name(path_like: str | Path) -> str:
+    """Return only the final component (name) of a path-like string."""
+    try:
+        return Path(str(path_like)).name
+    except (TypeError, ValueError, OSError):
+        return str(path_like)
+
+
 def is_line_valid(line: str) -> bool:
     """Check if a line is valid for processing.
 
