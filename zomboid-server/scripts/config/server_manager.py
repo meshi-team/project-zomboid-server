@@ -96,7 +96,7 @@ class ProjectZomboidServerManager:
             if self.selected_preset
             else None
         )
-
+        self.logger.info("-" * 40)
         self.logger.info("Validating SandboxVars for server: %s", self.server_name)
         if preset_file and not Path(preset_file).exists():
             preset_file = None
@@ -111,7 +111,7 @@ class ProjectZomboidServerManager:
             default_path = Path(preset_file) if preset_file else Path(default_file)
         else:
             self.logger.info(
-                "SandboxVars file exists, using it as base%s",
+                "SandboxVars file exists, using it as base %s",
                 " (forcing preset)" if self.force_preset else "",
             )
             default_path = Path(sandbox_file)
