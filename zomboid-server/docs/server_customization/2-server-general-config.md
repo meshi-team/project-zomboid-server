@@ -2,7 +2,7 @@
 
 ## Description
 
-This document lists all the environment variables you can customize for Project Zomboid server configuration settings. These variables correspond to the server's `.ini` file and control general server behavior, gameplay mechanics, PvP settings, anti-cheat protection, and various multiplayer features. They allow you to configure your server without modifying any files, simply override them when starting your container.
+This document lists all the environment variables you can customize for Project Zomboid server general configuration settings. These variables correspond to the server's `.ini` file and control general server behavior, gameplay mechanics, PvP settings, anti-cheat protection, and various multiplayer features. They allow you to configure your server without modifying any files, simply override them when starting your container.
 
 **All variables listed below can be customized using Docker's `-e` flag.**
 

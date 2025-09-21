@@ -2,7 +2,7 @@
 
 ## Description
 
-This document lists all the environment variables you can customize when running the Project Zomboid server in Docker. These variables are used as command-line flags to initialize the server startup process. They allow you to configure your server without modifying any files, simply override them when starting your container.
+This document lists all the environment variables you can customize when running the Project Zomboid server in Docker. Most of these variables are used as command-line flags to initialize the server startup process. They allow you to configure your server without modifying any files, simply override them when starting your container.
 
 **All variables listed below can be customized using Docker's `-e` flag.**
 
@@ -62,6 +62,7 @@ The following table shows all variables you can override, their purpose, and def
 | `STEAM_PORT_1`          | First Steam communication port                                                                                                                                           | _(empty)_                                |
 | `STEAM_PORT_2`          | Second Steam communication port                                                                                                                                          | _(empty)_                                |
 | `MODFOLDERS`            | Comma-separated list of mod folder names                                                                                                                                 | `steam,mods,workshop`                    |
+| `PZ_VERSION`            | Current Project Zomboid server version baked into the image; exposed for reference at runtime. Set automatically from the image if available (read-only/informational). | auto-detected from image                 |
 
 ## Most Common Variables to Change
 

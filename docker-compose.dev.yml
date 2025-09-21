@@ -1,0 +1,20 @@
+services:
+  zomboid-server:
+    container_name: zomboid-server
+    build:
+      context: ./zomboid-server
+      dockerfile: Dockerfile
+    volumes:
+      - ${LOCAL_WORKSPACE_FOLDER:-.}/data:/root/Zomboid
+      - ${LOCAL_WORKSPACE_FOLDER:-.}/workshop:/root/.local/share/Steam/steamapps/workshop
+      - ${LOCAL_WORKSPACE_FOLDER:-.}/zomboid-server/scripts:/scripts
+    ports:
+      - 16261:16261/udp # Port for the server
+      - 16261:16261/tcp # TCP port for the server
+      - 8766:8766/udp # Steam query port
+      - 16262-16272:16262-16272/udp # Direct connection ports
+    environment:
+      - PVP=false
+      - ZOMBIES=5
+      - DAY_LENGTH=5
+      - SERVER_NAME=meshi-test-3
