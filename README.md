@@ -1,343 +1,318 @@
 # Project Zomboid Server
 
-This repository provides a **Docker-based setup** for running a Project Zomboid dedicated server with advanced configuration options. It's designed for easy deployment, customizable gameplay settings, and streamlined server management.
+This repository provides a **Docker-based setup** for running a Project Zomboid dedicated server with advanced configuration options.
+It’s designed to be **easy to deploy**, **simple to customize**, and **ready for mods and workshop content** right out of the box.
 
-> 💡 **New**: Built-in admin console! Use `docker exec -it zomboid-server admin-console` to access the server administration interface powered by RCON protocol.
+<!-- markdownlint-disable MD051 -->
+<!-- markdownlint-disable MD033 -->
 
-## Features
+## Index
 
-- 🐳 **Docker-based deployment** - Easy setup and deployment using Docker Compose
-- 🔧 **Environment-based config** - Easy configuration through environment files
-- ⚙️ **Extensive configuration** - Over 150+ configurable server and sandbox variables
-- 🎮 **Admin Command Line Interface** - Built-in RCON-based console for server administration
+- [✨ Features](#features)
+- [📦 Requirements](#requirements)
+- [🚀 How to Run](#how-to-run)
+- [⚙️ Configuration](#configuration)
+- [🖥️ Server Management](#server-management)
+- [💾 Volumes & Data](#volumes--data)
+- [🧩 Modding](#modding)
+- [📖 Documentation](#documentation)
+- [👩‍💻 For Developers](#for-developers)
+- [📜 License](#license)
 
-## Coming Soon
+---
 
-We're working on exciting new features to enhance your Project Zomboid server experience:
+## ✨ Features <a id="features"></a>
 
-### 🚀 Ready-to-Use Server Images
+- 🐳 **Docker-based deployment** – clean and portable setup
+- 🔧 **Full environment-based configuration** – everything is controlled with env vars
+- 🎮 **Built-in admin console** – manage your server through an RCON-powered CLI
+- 🧩 **Workshop & mod support** – automatic mod and map integration
 
-- **Automatic creation using GitHub Actions and GHCR** - Automated builds and publishing to GitHub Container Registry
-- **Featuring the Unstable versions with tag versioning** - Support for both stable and unstable Project Zomboid builds with proper versioning
+---
 
-### 🔧 Workshop & Mod Support
+## 📦 Requirements <a id="requirements"></a>
 
-- **Steam Workshop Integration** - Automatic mod downloading and management
-- **Custom Mod Configurations** - Easy mod setup through environment variables
+- **Docker** and **Docker Compose** installed
+- **4 GB+ RAM** recommended (configurable via `SERVER_MEMORY`)
+- **Open ports** for communication:
 
-## Table of Contents
+  - `16261` (UDP/TCP) – main server port
+  - `8766` (UDP) – Steam query port
+  - `16262–16272` (UDP) – direct connection ports
 
-- [Features](#features)
-- [Coming Soon](#coming-soon)
-  - [🚀 Ready-to-Use Server Images](#-ready-to-use-server-images)
-  - [🔧 Workshop \& Mod Support](#-workshop--mod-support)
-- [Table of Contents](#table-of-contents)
-- [Requirements](#requirements)
-- [How to Run](#how-to-run)
-  - [🔧 Build from Source](#-build-from-source)
-- [Configuration](#configuration)
-  - [1. Server Initialization Flags](#1-server-initialization-flags)
-  - [2. Server Configuration Settings](#2-server-configuration-settings)
-  - [3. Sandbox Variables](#3-sandbox-variables)
-  - [Quick Setup Examples](#quick-setup-examples)
-- [Server Management](#server-management)
-  - [1. 🔗 Connecting to Your Server](#1--connecting-to-your-server)
-  - [2. 🖥️ Accessing Server Console](#2-️-accessing-server-console)
-  - [3. 💾 Volumes and Data Management](#3--volumes-and-data-management)
-  - [4. 🔄 Server Updates](#4--server-updates)
-- [For Developers](#for-developers)
-  - [Development Environment Setup](#development-environment-setup)
-  - [Code Quality Tools](#code-quality-tools)
-  - [Contributing](#contributing)
-- [License](#license)
-- [Support](#support)
-
-## Requirements
-
-- **Docker** and **Docker Compose** installed on your system
-- **4GB+ RAM** recommended (configurable via `SERVER_MEMORY`)
-- **Open ports** for server communication:
-  - `16261` (UDP/TCP) - Main server port
-  - `8766` (UDP) - Steam query port
-  - `16262-16272` (UDP) - Direct connection ports
 - **Steam account** (optional, for Steam integration features)
 
-## How to Run
+---
 
-### 🔧 Build from Source
+## 🚀 How to Run <a id="how-to-run"></a>
 
-1. **Clone this repository:**
+You can either use our **ready-to-use image** or **build from source**.
 
-   ```bash
-   git clone https://github.com/meshi-team/project-zomboid-server.git
-   cd project-zomboid-server
-   ```
+### Option 1: Ready-to-Use Image (Work in Progress) 🚧
 
-2. **Customize the docker-compose.yml file (optional):**
+Note: The prebuilt image is work-in-progress; image tags and behavior may change while we finalize publishing.
 
-   Review and modify the `docker-compose.yml` file environment variables to change your server behaviour or configuration. See the [Configuration](#configuration) section below for all available options.
+Pull the prebuilt image from GitHub Container Registry:
 
-   ```yaml
-   services:
-     zomboid-server:
-       container_name: zomboid-server
-       build:
-         context: ./zomboid-server
-         dockerfile: Dockerfile
-       volumes:
-         - ./data:/root/Zomboid # Change this to your desired $CACHE_DIR location
-       ports:
-         - 16261:16261/udp # Port for the server
-         - 16261:16261/tcp # TCP port for the server
-         - 8766:8766/udp # Steam query port
-         - 16262-16272:16262-16272/udp # Direct connection ports
-       environment:
-         - SERVER_PRESET=Beginner # Custom
-         - ADMIN_PASSWORD=MyPassword # Custom
-         - SPAWN_ITEMS=Base.Axe,Base.Bag_BigHikingBag # Custom
-   ```
-
-3. **Start the server:**
-
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Check server logs:**
-
-   ```bash
-   docker-compose logs -f zomboid-server
-   ```
-
-## Configuration
-
-**💡 All server options can be easily customized using Docker environment variables** - simply add any variable to your `docker-compose.yml` environment section or use the `-e` flag with `docker run`.
-
-The server exposes three configuration groups that define different aspects of your server. Documentation for each is available in the `zomboid-server/docs/` folder to help you understand all available options.
-
-### 1. Server Initialization Flags
-
-**File**: `server-init-flags.sh`  
-**Documentation**: [📖 server-init-flags.md](zomboid-server/docs/server-init-flags.md)
-
-Controls basic server startup parameters and command-line flags:
-
-```yaml
-environment:
-  - SERVER_NAME=MyAwesomeServer
-  - SERVER_MEMORY=4096m
-  - PORT=16261
-  - ADMIN_PASSWORD=MySecurePassword123
-  - DEBUG=0
+```bash
+docker pull ghcr.io/meshi-team/zomboid-server:latest
 ```
 
-**Key variables**: `SERVER_NAME`, `SERVER_MEMORY`, `PORT`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `COOP_SERVER`, `NO_STEAM`, `DEBUG`
-
-> 📚 **[View complete list of startup flags →](zomboid-server/docs/server-init-flags.md)**
-
-### 2. Server Configuration Settings
-
-**File**: `server-init-settings.sh`  
-**Documentation**: [📖 server-init-settings.md](zomboid-server/docs/server-init-settings.md)
-
-Controls gameplay mechanics, multiplayer features, and server behavior with 90+ variables:
+The easiest way to run is with **docker-compose**:
 
 ```yaml
-environment:
-  - PVP=true
-  - MAX_PLAYERS=64
-  - PUBLIC=true
-  - PUBLIC_NAME=My Zomboid Server
-  - GLOBAL_CHAT=true
-  - PASSWORD=mypassword
+services:
+  zomboid-server:
+    container_name: zomboid-server
+    image: ghcr.io/meshi-team/zomboid-server:latest
+    volumes:
+      - ./data:/root/Zomboid
+      - ./workshop:/root/.local/share/Steam/steamapps/workshop
+    ports:
+      - 16261:16261/udp
+      - 16261:16261/tcp
+      - 8766:8766/udp
+      - 16262-16272:16262-16272/udp
+    environment:
+      - SERVER_NAME=MyServer
+      - ADMIN_PASSWORD=secret
 ```
 
-**Key variables**: `PVP`, `MAX_PLAYERS`, `PUBLIC`, `PUBLIC_NAME`, `GLOBAL_CHAT`, `VOICE_ENABLE`, `PASSWORD`, `RCON_PASSWORD`
+Or directly with `docker run`:
 
-> 📚 **[View complete list of server settings →](zomboid-server/docs/server-init-settings.md)**
-
-### 3. Sandbox Variables
-
-**File**: `server-sandbox-vars.sh`  
-**Documentation**: [📖 server-sandbox-vars.md](zomboid-server/docs/server-sandbox-vars.md)
-
-Controls world generation, zombie behavior, loot spawning, and survival mechanics with 100+ variables:
-
-```yaml
-environment:
-  - ZOMBIES=3 # High population
-  - SPEED=2 # Fast Shamblers
-  - FOOD_LOOT=4 # Rare
-  - XP_MULTIPLIER=1.5 # Faster progression
-  - DAY_LENGTH=3 # 1 Hour
-  - CAR_SPAWN_RATE=3 # Low
+```bash
+docker run -d \
+  --name zomboid-server \
+  -p 16261:16261/udp -p 16261:16261/tcp \
+  -p 8766:8766/udp \
+  -p 16262-16272:16262-16272/udp \
+  -v ./data:/root/Zomboid \
+  -e SERVER_NAME=MyServer \
+  -e ADMIN_PASSWORD=secret \
+  ghcr.io/meshi-team/zomboid-server:latest
 ```
 
-**Key variables**: `ZOMBIES`, `SPEED`, `STRENGTH`, `FOOD_LOOT`, `WEAPON_LOOT`, `XP_MULTIPLIER`, `DAY_LENGTH`, `CAR_SPAWN_RATE`
+<!-- markdownlint-disable MD051 -->
 
-> 📚 **[View complete list of sandbox variables →](zomboid-server/docs/server-sandbox-vars.md)**
+You can customize the server by adding more environment variables (see [Configuration](#configuration) below).
+
+### Option 2: Build from Source
+
+Clone the repository and adjust your compose file:
+
+```bash
+git clone https://github.com/meshi-team/project-zomboid-server.git
+cd project-zomboid-server
+```
+
+<!-- markdownlint-disable MD051 -->
+
+Edit `docker-compose.yml` as needed (see [Configuration](#configuration) below) and then run:
+
+```bash
+docker-compose up -d
+```
+
+---
+
+## ⚙️ Configuration <a id="configuration"></a>
+
+The server has **three configurable parts**. All of them can be customized with environment variables – no manual file editing required.
+
+### 1. Startup Options (Flags)
+
+- Memory, ports, Steam/no-Steam, debug mode, etc.
+
+- Full reference: [1-server-base-variables-and-flags.md](docs/server_customization/1-server-base-variables-and-flags.md)
+
+- Example:
+
+  ```yaml
+  environment:
+    - SERVER_NAME=MyServer
+    - SERVER_MEMORY=4096m
+    - PORT=16261
+    - ADMIN_PASSWORD=MyPass
+  ```
+
+### 2. Server Configuration (`servertest.ini`)
+
+- Multiplayer features, server rules, player limits, RCON, etc.
+
+- Full reference: [2-server-general-config.md](docs/server_customization/2-server-general-config.md)
+
+- Example:
+
+  ```yaml
+  environment:
+    - MAX_PLAYERS=64
+    - PUBLIC=true
+    - PVP=true
+    - RCON_PASSWORD=RconSecret
+  ```
+
+### 3. Sandbox Variables (`SandboxVars.lua`)
+
+- World settings: zombies, loot, XP rates, car spawns, day length, etc.
+
+- Full reference: [3-server-sandbox-vars.md](docs/server_customization/3-server-sandbox-vars.md)
+
+- Example:
+
+  ```yaml
+  environment:
+    - ZOMBIES=3
+    - SPEED=2
+    - FOOD_LOOT=4
+    - XP_MULTIPLIER=1.5
+    - DAY_LENGTH=3
+  ```
+
+#### Presets and FORCE_PRESET
+
+- `SERVER_PRESET=<name>`: Use a SandboxVars preset file (e.g., `<name>.lua` in your configured presets directory) as the base when creating or refreshing `SandboxVars.lua`.
+- By default, if a SandboxVars already exists in your data folder, it is used as the base and your environment variables override specific keys.
+- Set `FORCE_PRESET=1` to replace any existing `SandboxVars.lua` with the selected preset on startup; your environment variables are then applied on top of that preset.
+- If the preset file isn’t found, the default Sandbox template is used and a warning is logged.
+
+---
 
 ### Quick Setup Examples
 
-**Hardcore Survival Server:**
+**Hardcore survival server:**
 
 ```yaml
 environment:
-  - ZOMBIES=1 # Insane population
-  - SPEED=1 # Sprinters
-  - FOOD_LOOT=2 # Insanely rare
-  - XP_MULTIPLIER=0.5 # Slower progression
+  - ZOMBIES=1
+  - SPEED=1
+  - FOOD_LOOT=2
+  - XP_MULTIPLIER=0.5
   - PVP=true
   - MAX_PLAYERS=32
 ```
 
-**Casual/Learning Server:**
+**Casual learning server:**
 
 ```yaml
 environment:
-  - ZOMBIES=5 # Low population
-  - SPEED=3 # Shamblers
-  - FOOD_LOOT=6 # Common loot
-  - XP_MULTIPLIER=2.0 # Faster progression
+  - ZOMBIES=5
+  - SPEED=3
+  - FOOD_LOOT=6
+  - XP_MULTIPLIER=2.0
   - PVP=false
   - STARTER_KIT=true
 ```
 
-## Server Management
+---
 
-This section covers all aspects of managing your Project Zomboid server, from connecting to it to monitoring logs and performing maintenance tasks.
+## 🖥️ Server Management <a id="server-management"></a>
 
-### 1. 🔗 Connecting to Your Server
+- **Connect to server** – Direct connect in-game to `IP:16261`
+- **Access console** – Use the built-in RCON console:
 
-1. Launch Project Zomboid
-2. Go to **Join Server** → **Direct Connection**
-3. Enter your server's IP address and port (default: `16261`)
-4. Enter password if required
+  ```bash
+  docker exec -it zomboid-server admin-console
+  ```
 
-### 2. 🖥️ Accessing Server Console
+- **Common commands:** `players`, `kickuser`, `banuser`, `grantadmin`, `save`, `quit`, `help`
 
-**Important**: The server console is **not available** through `docker attach zomboid-server`. The Project Zomboid server runs in the background without an interactive console interface.
+---
 
-To use the admin console, simply run:
+## 💾 Volumes & Data <a id="volumes--data"></a>
 
-```bash
-docker exec -it zomboid-server admin-console
+Two important volumes are defined by default:
+
+- **`data` → `/root/Zomboid`**
+  Stores world saves, configs, logs, and player data
+
+- **Workshop dir** (Steam default: `/root/.local/share/Steam/steamapps/workshop`)
+  Stores downloaded Workshop content
+
+Bind-mount these directories on your host for backups and migrations.
+
+---
+
+## 🧩 Modding <a id="modding"></a>
+
+The server makes modding easy – most of the setup is automated.
+You only need to declare two environment variables:
+
+- **`WORKSHOP_ITEMS`** → list of Workshop IDs
+- **`MODS`** → list of Mod IDs (as they appear in `mod.info`)
+
+Both are **semicolon-separated**.
+
+Example:
+
+```yaml
+environment:
+  - WORKSHOP_ITEMS=123456789;987654321
+  - MODS=MyCoolMod;AnotherMod
 ```
 
-This command launches the admin console tool and connects you to your running server using the RCON protocol.
+> [!NOTE]
+> The container downloads Workshop content into Steam’s shared Workshop cache (default: `/root/.local/share/Steam/steamapps/workshop`).
+> Your bind‑mounted workshop folder may therefore contain many mods once downloaded, but only the mods you list in `MODS` are linked into the server and actually loaded. You don’t need to manage that folder manually—selection is controlled by `WORKSHOP_ITEMS` (what to download) and `MODS` (what to load).
 
-This command will:
+On startup, the server will:
 
-- Connect to the Project Zomboid server using the RCON protocol
-- Provide an interactive console for server administration
-- Allow you to execute admin commands directly on the server
+- Download missing Workshop items
+- Enable the mods automatically
+- Keep them in sync for next launches
 
-**RCON Connection Details:**
+⚠️ **Note**: Mods must be downloaded and enabled on the **client** side as well for players to join.
 
-- **Protocol**: Remote Console (RCON) - industry standard for game server management
-- **Authentication**: Uses the configured RCON password from your environment settings
-- **Port**: Default RCON port is `27015` (configurable via `RCON_PORT`)
-- **Security**: Encrypted connection for secure remote administration
+Where to find IDs
 
-**Common admin commands (available through RCON console):**
+- Workshop ID: visible in the Steam Workshop item URL (the trailing numeric id), and on the item page.
+- Mod ID: shown on the Workshop page (often under “Mod ID”), and always inside the mod’s `mod.info` file.
 
-- `players` - List connected players
-- `kickuser <username>` - Kick a player
-- `banuser <username>` - Ban a player
-- `unbanuser <username>` - Unban a player
-- `adduser <username> <password>` - Add user account
-- `grantadmin <username>` - Grant admin privileges
-- `save` - Manually save the world
-- `quit` - Shutdown server gracefully
-- `help` - Show available commands
+### 🗺️ Auto Maps Support
 
-**Note**: Type `:q` or press `Ctrl+C` to exit the admin console.
+If any installed mod includes **maps**, the server will:
 
-### 3. 💾 Volumes and Data Management
+- Automatically generate the `MAP` variable (there is no single “correct” order)
+- Update your server configuration
+- Patch your `spawnregions.lua` with valid spawnpoints
 
-The core server configuration and world data are stored under `/root/Zomboid` inside the container. This directory contains all your server settings, world saves, player data, and logs. By default, this data is persisted using a Docker volume to ensure it survives container restarts and updates.
+If you want to override the map load order, set the `MAP` variable manually. This should only be necessary when map compatibility requires it. Feel free to declare your own map string as in the example below. Note: `Muldraugh, KY` should be last.
 
-It's highly recommended to use a bind mount (as shown in the docker-compose files above) to map this directory to a local path on your host system. This approach provides several benefits:
-
-- **Easy access** to server files for backup and configuration
-- **Better performance** compared to named volumes
-- **Simplified data management** and migration between servers
-
-### 4. 🔄 Server Updates
-
-When you rebuild the Docker image, it will automatically download the latest stable version of Project Zomboid from SteamCMD and generate a new image with the updated game files. This ensures your server always runs the most recent stable release.
-
-```bash
-# Stop server
-docker-compose down
-
-# Rebuild with latest updates
-docker-compose build --no-cache
-
-# Start server
-docker-compose up -d
+```yaml
+environment:
+  - MAP=BedfordFalls;West Point, KY;Muldraugh, KY
 ```
 
-## For Developers
+---
 
-### Development Environment Setup
+## 📖 Documentation <a id="documentation"></a>
 
-1. **Install [VS Code](https://code.visualstudio.com/) and [Docker](https://www.docker.com/)**
-2. **Install the VS Code "Remote - Containers" extension**
-3. **Clone this repository**
-4. **Open the repository in VS Code**
-5. When prompted, click **"Reopen in Container"** or run the `Remote-Containers: Reopen in Container` command
+The project's documentation is evolving as new features are released. Inside the [docs folder](docs/), you’ll find:
 
-The DevContainer includes all necessary development tools:
+- How the container and helper scripts are implemented (entrypoint, configuration pipeline, utilities)
+- How Workshop mods are downloaded, enabled, and kept in sync
+- Automatic maps handling (detection, load-order overrides when needed, spawn regions patching)
+- How environment variables override server INI and SandboxVars before startup
 
-- Various linters and formatters (yamllint, shellcheck, hadolint, etc.)
-- Git configuration and pre-commit hooks
-- Shell utilities and debugging tools
+Start here: [Documentation Overview](docs/README.md)
 
-### Code Quality Tools
+---
 
-a. Linting
+## 👩‍💻 For Developers <a id="for-developers"></a>
 
-```bash
-npm run lint           # Run ESLint on JavaScript/JSON
-npm run lint-fix       # Auto-fix ESLint issues
-npm run ruff           # Run Ruff on Python code
-npm run ruff-fix       # Auto-fix Ruff issues
-```
+We include a **DevContainer** and a set of tools for contributors:
 
-b. Formatting
+- **Linting & formatting**: ESLint, Prettier, Ruff, ShellCheck, Hadolint
+- **Pre-commit hooks**
+- **VS Code Remote Containers** ready
 
-```bash
-npm run format         # Format code with Prettier
-```
+### Development Setup
 
-### Contributing
+1. Clone repo
+2. Open in VS Code
+3. Reopen in container → ready to hack
 
-1. **Fork the repository**
-2. **Create a feature branch with a descriptive name:**
+---
 
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+## 📜 License <a id="license"></a>
 
-3. **Make your changes following the code style guidelines**
-4. **Run linting and formatting checks before committing:**
-
-   ```bash
-   npm run lint-fix
-   npm run format
-   ```
-
-5. **Submit a pull request with a conventional commit title:**
-   - Format: `<type>(<scope>): <subject>`
-   - Valid types: `feat`, `fix`, `perf`, `refactor`, `revert`, `chore`, `ci`, `docs`
-6. **Ensure all CI checks pass**
-
-## License
-
-This project is licensed under the terms specified in the [LICENSE](LICENSE) file.
-
-## Support
-
-- **Issues**: Report bugs and request features via [GitHub Issues](https://github.com/meshi-team/project-zomboid-server/issues)
-- **Documentation**: Full documentation is available in the [docs](docs/) folder
+This project is licensed under the terms in [LICENSE](LICENSE).
