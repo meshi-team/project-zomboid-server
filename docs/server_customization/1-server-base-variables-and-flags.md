@@ -62,7 +62,7 @@ The following table shows all variables you can override, their purpose, and def
 | `STEAM_PORT_1`          | First Steam communication port                                                                                                                                           | _(empty)_                                |
 | `STEAM_PORT_2`          | Second Steam communication port                                                                                                                                          | _(empty)_                                |
 | `MODFOLDERS`            | Comma-separated list of mod folder names                                                                                                                                 | `steam,mods,workshop`                    |
-| `PZ_VERSION`            | Current Project Zomboid server version baked into the image; exposed for reference at runtime. Set automatically from the image if available (read-only/informational). | auto-detected from image                 |
+| `PZ_VERSION`            | Current Project Zomboid server version baked into the image; exposed for reference at runtime. Set automatically from the image if available (read-only/informational).  | auto-detected from image                 |
 
 ## Most Common Variables to Change
 

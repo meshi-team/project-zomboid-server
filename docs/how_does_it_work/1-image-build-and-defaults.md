@@ -6,15 +6,15 @@ Build flow (high‑level):
 
 ```mermaid
 flowchart TD
-  A["Start build"] --> B["Base image: SteamCMD (Ubuntu 24)"]
-  B --> C["Install Python tooling\npython3, pip, venv"]
-  C --> D["Install PZ server via SteamCMD\nto /pzomboid-server"]
+  A["Start build"] --> B["Base image: SteamCMD"]
+  B --> C["Install Python tooling python3, pip, venv"]
+  C --> D["Install PZ server via SteamCMD to /pzomboid-server"]
   D --> E["Copy /scripts and make executable"]
 
   E --> F{"Pre-generate defaults"}
   F --> G{"Install admin console"}
   G --> H{"Record server version"}
-  H --> I["Execute entrypoint\n/scripts/entrypoint.sh"]
+  H --> I["Execute entrypoint /scripts/entrypoint.sh"]
 ```
 
 ---

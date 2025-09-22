@@ -4,22 +4,24 @@ This repository provides a **Docker-based setup** for running a Project Zomboid 
 It’s designed to be **easy to deploy**, **simple to customize**, and **ready for mods and workshop content** right out of the box.
 
 <!-- markdownlint-disable MD051 -->
+<!-- markdownlint-disable MD033 -->
+
 ## Index
 
-- [✨ Features](#✨-features)
-- [📦 Requirements](#📦-requirements)
-- [🚀 How to Run](#🚀-how-to-run)
-- [⚙️ Configuration](#⚙️-configuration)
-- [🖥️ Server Management](#🖥️-server-management)
-- [💾 Volumes & Data](#💾-volumes--data)
-- [🧩 Modding](#🧩-modding)
-- [📖 Documentation](#📖-documentation)
-- [👩‍💻 For Developers](#👩‍💻-for-developers)
-- [📜 License](#📜-license)
+- [✨ Features](#features)
+- [📦 Requirements](#requirements)
+- [🚀 How to Run](#how-to-run)
+- [⚙️ Configuration](#configuration)
+- [🖥️ Server Management](#server-management)
+- [💾 Volumes & Data](#volumes--data)
+- [🧩 Modding](#modding)
+- [📖 Documentation](#documentation)
+- [👩‍💻 For Developers](#for-developers)
+- [📜 License](#license)
 
 ---
 
-## ✨ Features
+## ✨ Features <a id="features"></a>
 
 - 🐳 **Docker-based deployment** – clean and portable setup
 - 🔧 **Full environment-based configuration** – everything is controlled with env vars
@@ -28,7 +30,7 @@ It’s designed to be **easy to deploy**, **simple to customize**, and **ready f
 
 ---
 
-## 📦 Requirements
+## 📦 Requirements <a id="requirements"></a>
 
 - **Docker** and **Docker Compose** installed
 - **4 GB+ RAM** recommended (configurable via `SERVER_MEMORY`)
@@ -37,11 +39,12 @@ It’s designed to be **easy to deploy**, **simple to customize**, and **ready f
   - `16261` (UDP/TCP) – main server port
   - `8766` (UDP) – Steam query port
   - `16262–16272` (UDP) – direct connection ports
+
 - **Steam account** (optional, for Steam integration features)
 
 ---
 
-## 🚀 How to Run
+## 🚀 How to Run <a id="how-to-run"></a>
 
 You can either use our **ready-to-use image** or **build from source**.
 
@@ -90,7 +93,8 @@ docker run -d \
 ```
 
 <!-- markdownlint-disable MD051 -->
-You can customize the server by adding more environment variables (see [Configuration](#⚙️-configuration) below).
+
+You can customize the server by adding more environment variables (see [Configuration](#configuration) below).
 
 ### Option 2: Build from Source
 
@@ -102,7 +106,8 @@ cd project-zomboid-server
 ```
 
 <!-- markdownlint-disable MD051 -->
-Edit `docker-compose.yml` as needed (see [Configuration](#⚙️-configuration) below) and then run:
+
+Edit `docker-compose.yml` as needed (see [Configuration](#configuration) below) and then run:
 
 ```bash
 docker-compose up -d
@@ -110,7 +115,7 @@ docker-compose up -d
 
 ---
 
-## ⚙️ Configuration
+## ⚙️ Configuration <a id="configuration"></a>
 
 The server has **three configurable parts**. All of them can be customized with environment variables – no manual file editing required.
 
@@ -118,7 +123,7 @@ The server has **three configurable parts**. All of them can be customized with 
 
 - Memory, ports, Steam/no-Steam, debug mode, etc.
 
-- Full reference: [1-server-base-variables-and-flags.md](zomboid-server/docs/server_customization/1-server-base-variables-and-flags.md)
+- Full reference: [1-server-base-variables-and-flags.md](docs/server_customization/1-server-base-variables-and-flags.md)
 
 - Example:
 
@@ -134,7 +139,7 @@ The server has **three configurable parts**. All of them can be customized with 
 
 - Multiplayer features, server rules, player limits, RCON, etc.
 
-- Full reference: [2-server-general-config.md](zomboid-server/docs/server_customization/2-server-general-config.md)
+- Full reference: [2-server-general-config.md](docs/server_customization/2-server-general-config.md)
 
 - Example:
 
@@ -150,7 +155,7 @@ The server has **three configurable parts**. All of them can be customized with 
 
 - World settings: zombies, loot, XP rates, car spawns, day length, etc.
 
-- Full reference: [3-server-sandbox-vars.md](zomboid-server/docs/server_customization/3-server-sandbox-vars.md)
+- Full reference: [3-server-sandbox-vars.md](docs/server_customization/3-server-sandbox-vars.md)
 
 - Example:
 
@@ -162,6 +167,13 @@ The server has **three configurable parts**. All of them can be customized with 
     - XP_MULTIPLIER=1.5
     - DAY_LENGTH=3
   ```
+
+#### Presets and FORCE_PRESET
+
+- `SERVER_PRESET=<name>`: Use a SandboxVars preset file (e.g., `<name>.lua` in your configured presets directory) as the base when creating or refreshing `SandboxVars.lua`.
+- By default, if a SandboxVars already exists in your data folder, it is used as the base and your environment variables override specific keys.
+- Set `FORCE_PRESET=1` to replace any existing `SandboxVars.lua` with the selected preset on startup; your environment variables are then applied on top of that preset.
+- If the preset file isn’t found, the default Sandbox template is used and a warning is logged.
 
 ---
 
@@ -193,7 +205,7 @@ environment:
 
 ---
 
-## 🖥️ Server Management
+## 🖥️ Server Management <a id="server-management"></a>
 
 - **Connect to server** – Direct connect in-game to `IP:16261`
 - **Access console** – Use the built-in RCON console:
@@ -206,7 +218,7 @@ environment:
 
 ---
 
-## 💾 Volumes & Data
+## 💾 Volumes & Data <a id="volumes--data"></a>
 
 Two important volumes are defined by default:
 
@@ -220,7 +232,7 @@ Bind-mount these directories on your host for backups and migrations.
 
 ---
 
-## 🧩 Modding
+## 🧩 Modding <a id="modding"></a>
 
 The server makes modding easy – most of the setup is automated.
 You only need to declare two environment variables:
@@ -237,6 +249,10 @@ environment:
   - WORKSHOP_ITEMS=123456789;987654321
   - MODS=MyCoolMod;AnotherMod
 ```
+
+> [!NOTE]
+> The container downloads Workshop content into Steam’s shared Workshop cache (default: `/root/.local/share/Steam/steamapps/workshop`).
+> Your bind‑mounted workshop folder may therefore contain many mods once downloaded, but only the mods you list in `MODS` are linked into the server and actually loaded. You don’t need to manage that folder manually—selection is controlled by `WORKSHOP_ITEMS` (what to download) and `MODS` (what to load).
 
 On startup, the server will:
 
@@ -268,20 +284,20 @@ environment:
 
 ---
 
-## 📖 Documentation
+## 📖 Documentation <a id="documentation"></a>
 
-The project's documentation is evolving as new features are released. Inside the [docs folder](zomboid-server/docs/), you’ll find:
+The project's documentation is evolving as new features are released. Inside the [docs folder](docs/), you’ll find:
 
 - How the container and helper scripts are implemented (entrypoint, configuration pipeline, utilities)
 - How Workshop mods are downloaded, enabled, and kept in sync
 - Automatic maps handling (detection, load-order overrides when needed, spawn regions patching)
 - How environment variables override server INI and SandboxVars before startup
 
-Start here: [Documentation Overview](zomboid-server/docs/README.md)
+Start here: [Documentation Overview](docs/README.md)
 
 ---
 
-## 👩‍💻 For Developers
+## 👩‍💻 For Developers <a id="for-developers"></a>
 
 We include a **DevContainer** and a set of tools for contributors:
 
@@ -297,6 +313,6 @@ We include a **DevContainer** and a set of tools for contributors:
 
 ---
 
-## 📜 License
+## 📜 License <a id="license"></a>
 
 This project is licensed under the terms in [LICENSE](LICENSE).
