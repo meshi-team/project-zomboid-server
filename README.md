@@ -11,7 +11,7 @@ It’s designed to be **easy to deploy**, **simple to customize**, and **ready f
 - [✨ Features](#features)
 - [📦 Requirements](#requirements)
 - [🚀 How to Run](#how-to-run)
-- [⚙️ Configuration](#configuration)
+- [⚙️ Environment variables](#environment-variables)
 - [🖥️ Server Management](#server-management)
 - [💾 Volumes & Data](#volumes--data)
 - [🧩 Modding](#modding)
@@ -36,9 +36,14 @@ It’s designed to be **easy to deploy**, **simple to customize**, and **ready f
 - **4 GB+ RAM** recommended (configurable via `SERVER_MEMORY`)
 - **Open ports** for communication:
 
-  - `16261` (UDP/TCP) – main server port
-  - `8766` (UDP) – Steam query port
-  - `16262–16272` (UDP) – direct connection ports
+  Required:
+
+  - `16261` (UDP) – main server port
+  - `16262` (UDP) – first player connection port
+
+  Optional:
+
+  - `27015` (TCP) – RCON (remote console)
 
 - **Steam account** (optional, for Steam integration features)
 
@@ -46,134 +51,159 @@ It’s designed to be **easy to deploy**, **simple to customize**, and **ready f
 
 ## 🚀 How to Run <a id="how-to-run"></a>
 
-You can either use our **ready-to-use image** or **build from source**.
+Follow these simple steps to get a server running quickly with Docker. You can use either Docker Compose (recommended) or a single docker run command.
 
-### Option 1: Ready-to-Use Image (Work in Progress) 🚧
-
-Note: The prebuilt image is work-in-progress; image tags and behavior may change while we finalize publishing.
-
-Pull the prebuilt image from GitHub Container Registry:
+### 1) Pull the image
 
 ```bash
 docker pull ghcr.io/meshi-team/zomboid-server:latest
 ```
 
-The easiest way to run is with **docker-compose**:
+### 2) Create a minimal docker-compose.yml
+
+Create a file named `docker-compose.yml` in an empty folder and paste this minimal example:
 
 ```yaml
 services:
   zomboid-server:
-    container_name: zomboid-server
     image: ghcr.io/meshi-team/zomboid-server:latest
-    volumes:
-      - ./data:/root/Zomboid
-      - ./workshop:/root/.local/share/Steam/steamapps/workshop
+    container_name: zomboid-server
     ports:
       - 16261:16261/udp
-      - 16261:16261/tcp
-      - 8766:8766/udp
-      - 16262-16272:16262-16272/udp
+      - 16262:16262/udp
+    volumes:
+      - ./data:/root/Zomboid # persist saves/configs/logs
+      - ./workshop:/root/.local/share/Steam/steamapps/workshop # persist workshop mods
     environment:
       - SERVER_NAME=MyServer
       - ADMIN_PASSWORD=secret
+      # Check the full list of variables below
 ```
 
-Or directly with `docker run`:
+### 3) Start the server
+
+```bash
+docker compose up
+```
+
+Connect from the game client to: `your-server-ip:16261`.
+
+---
+
+### Alternative: Run without Compose
+
+Use a single command instead of a compose file:
 
 ```bash
 docker run -d \
   --name zomboid-server \
-  -p 16261:16261/udp -p 16261:16261/tcp \
-  -p 8766:8766/udp \
-  -p 16262-16272:16262-16272/udp \
-  -v ./data:/root/Zomboid \
+  -p 16261:16261/udp \
+  -p 16262:16262/udp \
+  -v "$(pwd)"/data:/root/Zomboid \
   -e SERVER_NAME=MyServer \
   -e ADMIN_PASSWORD=secret \
   ghcr.io/meshi-team/zomboid-server:latest
 ```
 
-<!-- markdownlint-disable MD051 -->
-
-You can customize the server by adding more environment variables (see [Configuration](#configuration) below).
-
-### Option 2: Build from Source
-
-Clone the repository and adjust your compose file:
+To persist Workshop downloads as well, add:
 
 ```bash
-git clone https://github.com/meshi-team/project-zomboid-server.git
-cd project-zomboid-server
-```
-
-<!-- markdownlint-disable MD051 -->
-
-Edit `docker-compose.yml` as needed (see [Configuration](#configuration) below) and then run:
-
-```bash
-docker-compose up -d
+-v "$(pwd)"/workshop:/root/.local/share/Steam/steamapps/workshop \
 ```
 
 ---
 
-## ⚙️ Configuration <a id="configuration"></a>
+## ⚙️ Environment variables <a id="environment-variables"></a>
 
 The server has **three configurable parts**. All of them can be customized with environment variables – no manual file editing required.
 
-### 1. Startup Options (Flags)
+### 1. Startup Options
 
 - Memory, ports, Steam/no-Steam, debug mode, etc.
 
-- Full reference: [1-server-base-variables-and-flags.md](docs/server_customization/1-server-base-variables-and-flags.md)
+- Full list: [1-server-base-variables-and-flags.md](docs/server_customization/1-server-base-variables-and-flags.md)
 
-- Example:
+- Example (set as environment variables):
 
-  ```yaml
-  environment:
-    - SERVER_NAME=MyServer
-    - SERVER_MEMORY=4096m
-    - PORT=16261
-    - ADMIN_PASSWORD=MyPass
+  ```bash
+  # Check out the full list at the link above
+  SERVER_NAME=MyServer
+  SERVER_MEMORY=4096m
+  PORT=16261
+  ADMIN_PASSWORD=MyPass
+  ADMIN_USERNAME=admin
+  NO_STEAM=0
+  DEBUG=0
+  SERVER_PRESET=FirstDay
   ```
 
-### 2. Server Configuration (`servertest.ini`)
+### 2. Server Configuration
 
 - Multiplayer features, server rules, player limits, RCON, etc.
 
-- Full reference: [2-server-general-config.md](docs/server_customization/2-server-general-config.md)
+- Full list: [2-server-general-config.md](docs/server_customization/2-server-general-config.md)
 
-- Example:
+- Example (set as environment variables):
 
-  ```yaml
-  environment:
-    - MAX_PLAYERS=64
-    - PUBLIC=true
-    - PVP=true
-    - RCON_PASSWORD=RconSecret
+  ```bash
+  # Check out the full list at the link above
+  PUBLIC=true
+  PUBLIC_NAME="My PZ Server"
+  MAX_PLAYERS=64
+  PVP=true
+  PASSWORD=
+  RCON_PASSWORD=RconSecret
+  RCON_PORT=27015
+  MAP="Muldraugh, KY"
   ```
 
-### 3. Sandbox Variables (`SandboxVars.lua`)
+### 3. Sandbox Variables
 
 - World settings: zombies, loot, XP rates, car spawns, day length, etc.
 
-- Full reference: [3-server-sandbox-vars.md](docs/server_customization/3-server-sandbox-vars.md)
+- Full list: [3-server-sandbox-vars.md](docs/server_customization/3-server-sandbox-vars.md)
 
-- Example:
+- Example (set as environment variables):
 
-  ```yaml
-  environment:
-    - ZOMBIES=3
-    - SPEED=2
-    - FOOD_LOOT=4
-    - XP_MULTIPLIER=1.5
-    - DAY_LENGTH=3
+  ```bash
+  # Check out the full list at the link above
+  ZOMBIES=3
+  SPEED=2
+  FOOD_LOOT=4
+  XP_MULTIPLIER=1.5
+  DAY_LENGTH=3
+  STARTER_KIT=true
+  CAR_SPAWN_RATE=3
   ```
 
-#### Presets and FORCE_PRESET
+#### Applying a preset
 
-- `SERVER_PRESET=<name>`: Use a SandboxVars preset file (e.g., `<name>.lua` in your configured presets directory) as the base when creating or refreshing `SandboxVars.lua`.
-- By default, if a SandboxVars already exists in your data folder, it is used as the base and your environment variables override specific keys.
-- Set `FORCE_PRESET=1` to replace any existing `SandboxVars.lua` with the selected preset on startup; your environment variables are then applied on top of that preset.
-- If the preset file isn’t found, the default Sandbox template is used and a warning is logged.
+- `SERVER_PRESET=<name>` selects a predefined preset by name and applies its configuration at startup.
+- By default, if a configuration already exists in your data folder, the existing configuration is kept and your environment variables override individual settings as needed.
+- Set `FORCE_PRESET=1` to fully apply the selected preset on startup, replacing any existing configuration; your environment variables are then applied on top.
+- If the preset name isn’t found, a default template is used and a warning is logged.
+
+Example:
+
+```bash
+SERVER_PRESET=FirstDay
+FORCE_PRESET=1
+```
+
+Tip: Use `FORCE_PRESET=1` only for the run where you want to reapply the preset, then remove it so your configuration isn’t replaced on every restart.
+
+Available presets:
+
+- Apocalypse
+- Beginner
+- Builder
+- FirstWeek
+- SandboxVars
+- SixMonthsLater
+- Survival
+- Survivor
+
+Learn more about these modes: [PZ Wiki – Game modes](https://pzwiki.net/wiki/Game_modes)
 
 ---
 
@@ -181,26 +211,24 @@ The server has **three configurable parts**. All of them can be customized with 
 
 **Hardcore survival server:**
 
-```yaml
-environment:
-  - ZOMBIES=1
-  - SPEED=1
-  - FOOD_LOOT=2
-  - XP_MULTIPLIER=0.5
-  - PVP=true
-  - MAX_PLAYERS=32
+```bash
+ZOMBIES=1
+SPEED=1
+FOOD_LOOT=2
+XP_MULTIPLIER=0.5
+PVP=true
+MAX_PLAYERS=32
 ```
 
 **Casual learning server:**
 
-```yaml
-environment:
-  - ZOMBIES=5
-  - SPEED=3
-  - FOOD_LOOT=6
-  - XP_MULTIPLIER=2.0
-  - PVP=false
-  - STARTER_KIT=true
+```bash
+ZOMBIES=5
+SPEED=3
+FOOD_LOOT=6
+XP_MULTIPLIER=2.0
+PVP=false
+STARTER_KIT=true
 ```
 
 ---
@@ -232,27 +260,24 @@ Bind-mount these directories on your host for backups and migrations.
 
 ---
 
-## 🧩 Modding <a id="modding"></a>
+## 🧩 Modding
 
-The server makes modding easy – most of the setup is automated.
-You only need to declare two environment variables:
+The server supports downloading and enabling mods/maps via Steam Workshop. Two key environment variables control this:
 
-- **`WORKSHOP_ITEMS`** → list of Workshop IDs
-- **`MODS`** → list of Mod IDs (as they appear in `mod.info`)
+- `WORKSHOP_ITEMS` — list of Workshop item IDs. These are numeric IDs from Steam Workshop; the server uses this list to download the required content automatically.
+- `MODS` — list of Mod IDs. Only mods whose IDs are listed here will be loaded by the server (even if their Workshop items were downloaded).
 
-Both are **semicolon-separated**.
-
-Example:
+### Example
 
 ```yaml
 environment:
-  - WORKSHOP_ITEMS=123456789;987654321
-  - MODS=MyCoolMod;AnotherMod
+  - WORKSHOP_ITEMS=1234567890;9876543210 # IDs of Workshop items to download
+  - MODS=CoolMod;ExtraMapMod # Mod IDs (from mod.info) to load
 ```
 
 > [!NOTE]
 > The container downloads Workshop content into Steam’s shared Workshop cache (default: `/root/.local/share/Steam/steamapps/workshop`).
-> Your bind‑mounted workshop folder may therefore contain many mods once downloaded, but only the mods you list in `MODS` are linked into the server and actually loaded. You don’t need to manage that folder manually—selection is controlled by `WORKSHOP_ITEMS` (what to download) and `MODS` (what to load).
+> Your bind‑mounted workshop folder may therefore contain many mods once downloaded, but only the workshop ids and mods you list in the environment variables are the ones loaded.
 
 On startup, the server will:
 
@@ -271,7 +296,7 @@ Where to find IDs
 
 If any installed mod includes **maps**, the server will:
 
-- Automatically generate the `MAP` variable (there is no single “correct” order)
+- Automatically generate the `MAP` variable.
 - Update your server configuration
 - Patch your `spawnregions.lua` with valid spawnpoints
 

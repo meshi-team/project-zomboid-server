@@ -6,19 +6,6 @@ This document lists all the environment variables you can customize for Project 
 
 **All variables listed below can be customized using Docker's `-e` flag.**
 
-## Table of Contents
-
-- [Description](#description)
-- [Table of Contents](#table-of-contents)
-- [How to Override Variables](#how-to-override-variables)
-- [Available Configuration Variables](#available-configuration-variables)
-- [Most Common Variables to Change](#most-common-variables-to-change)
-- [Quick Reference](#quick-reference)
-  - [Numeric Options](#numeric-options)
-  - [Boolean Values](#boolean-values)
-  - [Multiplier Values](#multiplier-values)
-  - [Time Values](#time-values)
-
 ## How to Override Variables
 
 Use Docker Compose and add your variables under the `environment:` key:
@@ -41,8 +28,6 @@ services:
 ## Available Configuration Variables
 
 The following table shows all variables you can override, their purpose, and default values:
-
-> **💡 Tip**: For more complete descriptions of available values and detailed explanations, refer to the original `server-sandbox-vars.sh` file which contains extensive comments for each setting.
 
 | Variable Name                        | Description                                                                                             | Default Value                          |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------- |
