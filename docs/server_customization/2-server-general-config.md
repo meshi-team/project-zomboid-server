@@ -6,19 +6,6 @@ This document lists all the environment variables you can customize for Project 
 
 **All variables listed below can be customized using Docker's `-e` flag.**
 
-## Table of Contents
-
-- [Description](#description)
-- [Table of Contents](#table-of-contents)
-- [How to Override Variables](#how-to-override-variables)
-- [Available Configuration Variables](#available-configuration-variables)
-- [Anti-Cheat Protection Variables](#anti-cheat-protection-variables)
-- [Most Common Variables to Change](#most-common-variables-to-change)
-- [Quick Reference](#quick-reference)
-  - [Boolean Values](#boolean-values)
-  - [Numeric Values](#numeric-values)
-  - [Special Formats](#special-formats)
-
 ## How to Override Variables
 
 Use Docker Compose and add your variables under the `environment:` key:
