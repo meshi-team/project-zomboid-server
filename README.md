@@ -16,7 +16,6 @@ It’s designed to be **easy to deploy**, **simple to customize**, and **ready f
 - [💾 Volumes & Data](#volumes--data)
 - [🧩 Modding](#modding)
 - [📖 Documentation](#documentation)
-- [👩‍💻 For Developers](#for-developers)
 - [📜 License](#license)
 
 ---
@@ -319,22 +318,6 @@ The project's documentation is evolving as new features are released. Inside the
 - How environment variables override server INI and SandboxVars before startup
 
 Start here: [Documentation Overview](docs/README.md)
-
----
-
-## 👩‍💻 For Developers <a id="for-developers"></a>
-
-We include a **DevContainer** and a set of tools for contributors:
-
-- **Linting & formatting**: ESLint, Prettier, Ruff, ShellCheck, Hadolint
-- **Pre-commit hooks**
-- **VS Code Remote Containers** ready
-
-### Development Setup
-
-1. Clone repo
-2. Open in VS Code
-3. Reopen in container → ready to hack
 
 ---
 
