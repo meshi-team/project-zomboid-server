@@ -109,6 +109,16 @@ class ProjectZomboidWorkshopManager:
         succeeded: set[str] = set()
         failed: set[str] = set()
 
+        pending = [wid for wid in self.server_workshop_items if wid not in downloaded]
+        if pending:
+            # Warm steamcmd's license cache; skipping this races `+workshop_download_item`.
+            subprocess.run(
+                ["steamcmd", "+login", "anonymous", "+quit"],  # noqa: S607
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
         for wid in self.server_workshop_items.copy():
             self.logger.info("-" * 40)
             self.logger.info("Processing workshop item: %s", wid)
@@ -118,8 +128,11 @@ class ProjectZomboidWorkshopManager:
                 continue
 
             self.logger.info("Downloading: %s", wid)
+            steam_root = str(Path(self.steam_workshop_folder).parent.parent)
             command = [
                 "steamcmd",
+                "+force_install_dir",
+                steam_root,
                 "+login",
                 "anonymous",
                 "+workshop_download_item",
@@ -200,11 +213,17 @@ class ProjectZomboidWorkshopManager:
         steam_wk_manifest = Path(self.steam_workshop_folder) / manifest_file
         server_wk_manifest = self.server_workshop_folder / manifest_file
 
-        if len(desired) == 0 and server_wk_manifest.exists():
-            self.logger.info("No workshop items selected, clearing manifest.")
-            server_wk_manifest.unlink()
-        else:
+        if len(desired) == 0:
+            if server_wk_manifest.exists():
+                self.logger.info("No workshop items selected, clearing manifest.")
+                server_wk_manifest.unlink()
+        elif steam_wk_manifest.exists():
             shutil.copy2(steam_wk_manifest, server_wk_manifest)
+        else:
+            self.logger.warning(
+                "Steam workshop manifest not found, skipping copy: %s",
+                steam_wk_manifest,
+            )
 
         self.logger.info("-" * 40)
         self.logger.info("Linking summary → linked:%d, errors:%d", linked, errors)

@@ -12,8 +12,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /pzomboid-server \
-    && steamcmd +login anonymous \
-    +force_install_dir /pzomboid-server \
+    && steamcmd +login anonymous +quit \
+    && steamcmd +force_install_dir /pzomboid-server \
+    +login anonymous \
     +app_update ${ZOMBOID_SERVER_APP_ID} validate \
     +quit
 

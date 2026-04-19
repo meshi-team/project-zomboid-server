@@ -21,6 +21,7 @@ else
 	exit 1
 fi
 
+mkdir -p "${CACHE_DIR}/mods"
 chmod -R 777 "${CACHE_DIR}"
 
 # Update server configuration for custom settings

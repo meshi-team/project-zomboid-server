@@ -43,7 +43,7 @@ PORT="${PORT:-16261}"
 STEAM_VAC="${STEAM_VAC:-true}"
 STEAM_PORT_1="${STEAM_PORT_1:-}"
 STEAM_PORT_2="${STEAM_PORT_2:-}"
-MODFOLDERS="${MODFOLDERS:-steam,mods,workshop}"
+MODFOLDERS="${MODFOLDERS:-}"
 
 # Remote console (RCON) settings
 RCON_PORT="${RCON_PORT:-27015}"
