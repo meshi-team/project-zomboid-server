@@ -27,4 +27,28 @@ RUN chmod -R a+x /scripts \
     && /scripts/build/install-admin-console.sh \
     && /scripts/build/find_build_id.sh > /PZ_BUILD_ID
 
+ARG BUILD_DATE
+ARG VCS_REF
+ARG PZ_VERSION
+ARG PZ_BUILD_ID
+ARG DOCS=blob/main/README.md
+
+LABEL org.opencontainers.image.created=${BUILD_DATE}
+LABEL org.opencontainers.image.authors="Meshi Team <https://github.com/meshi-team>"
+LABEL org.opencontainers.image.version=${PZ_VERSION}
+LABEL org.opencontainers.image.revision=${VCS_REF}
+LABEL org.opencontainers.image.title="Project Zomboid Dedicated Server"
+LABEL org.opencontainers.image.url="https://github.com/meshi-team/project-zomboid-server"
+LABEL org.opencontainers.image.documentation="https://github.com/meshi-team/project-zomboid-server/${DOCS}"
+LABEL org.opencontainers.image.source="https://github.com/meshi-team/project-zomboid-server"
+LABEL org.opencontainers.image.base.name="ghcr.io/steamcmd/steamcmd:ubuntu-22"
+LABEL org.opencontainers.image.vendor="Meshi Team"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.description="Project Zomboid dedicated server (v${PZ_VERSION}) container image with persistent world storage, workshop mod support, and customizable configuration."
+LABEL com.projectzomboid.version="${PZ_VERSION}"
+LABEL com.projectzomboid.buildId="${PZ_BUILD_ID}"
+LABEL io.github.meshi-team.project-zomboid-server.maintainer="Meshi Team"
+LABEL io.github.meshi-team.project-zomboid-server.is-production="true"
+
 ENTRYPOINT ["bash", "/scripts/entrypoint.sh"]
+CMD []

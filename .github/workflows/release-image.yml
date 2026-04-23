@@ -1,0 +1,163 @@
+name: Release Docker image
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and probe only, skip push and tag
+        type: boolean
+        default: false
+
+env:
+  IMAGE_NAME: project-zomboid-server
+  BUILD_CONTEXT: zomboid-server
+
+jobs:
+  build-and-publish:
+    name: Build and publish image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Create meshi-team-bot[bot] token
+        id: bot-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.MESHI_TEAM_BOT_APP_ID }}
+          private-key: ${{ secrets.MESHI_TEAM_BOT_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.bot-token.outputs.token }}
+
+      - name: Set build metadata
+        id: meta
+        shell: bash
+        run: |
+          echo "build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          echo "vcs_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build candidate image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.BUILD_CONTEXT }}
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:candidate
+          build-args: |
+            BUILD_DATE=${{ steps.meta.outputs.build_date }}
+            VCS_REF=${{ steps.meta.outputs.vcs_ref }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Read PZ buildid
+        id: buildid
+        shell: bash
+        run: |
+          BUILDID=$(docker run --rm ${{ env.IMAGE_NAME }}:candidate cat /PZ_BUILD_ID)
+          if [[ -z "$BUILDID" ]]; then
+            echo "::error::Failed to read PZ_BUILD_ID"
+            exit 1
+          fi
+          echo "buildid=$BUILDID" >> "$GITHUB_OUTPUT"
+          echo "Detected Steam buildid: $BUILDID"
+
+      - name: Detect PZ semver via short server boot
+        id: semver
+        shell: bash
+        run: |
+          SEMVER=$(docker run --rm --entrypoint=bash \
+            ${{ env.IMAGE_NAME }}:candidate -c '
+              timeout 20 /pzomboid-server/start-server.sh \
+                -servername _probe -adminpassword x -cachedir=/tmp/probe 2>&1 \
+              | grep -m1 -oE "version=[0-9]+\.[0-9]+\.[0-9]+" \
+              | cut -d= -f2
+          ')
+          if [[ -z "$SEMVER" ]]; then
+            echo "::error::Failed to detect PZ semver from server boot"
+            exit 1
+          fi
+          echo "semver=$SEMVER" >> "$GITHUB_OUTPUT"
+          echo "Detected PZ semver: $SEMVER"
+
+      - name: Build and push final image
+        if: ${{ !inputs.dry_run }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.BUILD_CONTEXT }}
+          push: true
+          build-args: |
+            BUILD_DATE=${{ steps.meta.outputs.build_date }}
+            VCS_REF=${{ steps.meta.outputs.vcs_ref }}
+            PZ_VERSION=${{ steps.semver.outputs.semver }}
+            PZ_BUILD_ID=${{ steps.buildid.outputs.buildid }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.semver.outputs.semver }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.semver.outputs.semver }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Sync Docker Hub description
+        if: ${{ !inputs.dry_run }}
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          readme-filepath: ./DOCKERHUB.md
+          short-description: >-
+            Project Zomboid dedicated server, ready to run with Steam
+            Workshop mods and RCON admin console.
+
+      - name: Create and push git tag
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: |
+          TAG="v${{ steps.semver.outputs.semver }}"
+          git tag "$TAG" "${{ github.sha }}" --force
+          git push origin "$TAG" --force
+          echo "Tagged $TAG at ${{ github.sha }}"
+
+      - name: Job summary
+        shell: bash
+        run: |
+          {
+            echo "## Release summary"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| PZ semver | \`${{ steps.semver.outputs.semver }}\` |"
+            echo "| Steam buildid | \`${{ steps.buildid.outputs.buildid }}\` |"
+            echo "| Git SHA | \`${{ github.sha }}\` |"
+            echo "| Dry run | \`${{ inputs.dry_run }}\` |"
+            echo ""
+            if [[ "${{ inputs.dry_run }}" != "true" ]]; then
+              GHCR="ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
+              DH="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}"
+              SEMVER="${{ steps.semver.outputs.semver }}"
+              echo "### Published tags"
+              echo "- \`$GHCR:$SEMVER\`"
+              echo "- \`$GHCR:latest\`"
+              echo "- \`$DH:$SEMVER\`"
+              echo "- \`$DH:latest\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
