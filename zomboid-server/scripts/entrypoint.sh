@@ -12,7 +12,10 @@ BASE_VARIABLES_SCRIPT="${DIR}/server-base-variables.sh"
 SERVER_INIT_SCRIPT="${DIR}/init-server.sh"
 SERVER_CONFIG_UPDATE_SCRIPT="${DIR}/config/main.py"
 
-# Source server base variables
+if [[ $# -gt 0 ]]; then
+	exec "$@"
+fi
+
 if [[ -f "${BASE_VARIABLES_SCRIPT}" ]]; then
 	# shellcheck source=server-base-variables.sh
 	source "${BASE_VARIABLES_SCRIPT}"
@@ -41,11 +44,4 @@ fi
 echo "Server configuration has been updated. Continuing in 5 seconds..."
 sleep 5
 
-# Execute the server initialization script
-# If no arguments are provided, run the server as default
-if [[ $# -eq 0 ]]; then
-	exec "${SERVER_INIT_SCRIPT}"
-fi
-
-# Execute the Command passed to the container
-exec "$@"
+exec "${SERVER_INIT_SCRIPT}"
