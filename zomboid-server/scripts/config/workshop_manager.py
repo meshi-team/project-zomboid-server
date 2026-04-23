@@ -31,7 +31,6 @@ class ProjectZomboidWorkshopManager:
     server_app_id = os.getenv("ZOMBOID_SERVER_APP_ID", "380870")
     game_app_id = os.getenv("ZOMBOID_GAME_APP_ID", "108600")
 
-    server_version = os.getenv("PZ_VERSION", "failed-to-retreive")
     cache_dir = os.getenv("CACHE_DIR", "/root/Zomboid")
     defaults_dir = os.getenv("DEFAULTS_DIR", "/defaults")
     server_name = os.getenv("SERVER_NAME", "servertest")

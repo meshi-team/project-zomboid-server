@@ -70,16 +70,16 @@ No extra setup is required. The CLI version is controlled by `RCON_CLI_VERSION`,
 - Install the wrapper script as `/usr/local/bin/admin-console` and mark it executable
 - Clean up temporary files and remove build-only packages
 
-### 🏷️ Server version labeling
+### 🏷️ Image labeling with Steam buildid
 
-To make the image self‑describing, we parse the server console log and write the detected version to `/PZ_VERSION`. If detection fails for any reason, the image records `failed-to-retreive`, making the state explicit. This small label lets tooling (and humans) know what’s inside without launching the game.
+To make the image self‑describing, we read the Steam `buildid` from the server's appmanifest and write it to `/PZ_BUILD_ID`. This identifier is what Steam uses to version the dedicated server internally — it changes on every content update, including hotfixes, making it the most reliable signal for "is my image out of date?" checks.
 
-➡️ Steps (extract and persist version):
+➡️ Steps (extract and persist the buildid):
 
-- Read `${CACHE_DIR}/server-console.txt` and find the first `version=…` token
-- Extract the numeric value (e.g., `41.78.16`) and print to STDOUT
-- Capture the output during the Docker build and write it to `/PZ_VERSION`
-- Fall back to `failed-to-retreive` if the log is missing or the token isn’t found
+- Read `/pzomboid-server/steamapps/appmanifest_${ZOMBOID_SERVER_APP_ID}.acf`
+- Extract the `buildid` value (e.g., `22695654`) via awk
+- Capture the output during the Docker build and write it to `/PZ_BUILD_ID`
+- Exit with a non‑zero code if the manifest is missing or the token isn't found
 
 ---
 
@@ -99,6 +99,6 @@ Mount them in your compose file so workshop content and worlds survive container
 - Faster first run (defaults and tooling are already in place)
 - Reproducible configuration (defaults match the bundled server version)
 - Ready‑to‑administer (RCON console included)
-- Introspectable image (`/PZ_VERSION` makes the contents clear)
+- Introspectable image (`/PZ_BUILD_ID` makes the contents clear)
 
 This preparation keeps runtime startup lean and makes configuration consistent and reliable across environments.

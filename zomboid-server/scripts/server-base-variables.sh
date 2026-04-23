@@ -49,9 +49,9 @@ MODFOLDERS="${MODFOLDERS:-}"
 RCON_PORT="${RCON_PORT:-27015}"
 RCON_PASSWORD="${RCON_PASSWORD:-admin}"
 
-# Set Project Zomboid version if available
-if [[ -z "${PZ_VERSION:-}" && -f /PZ_VERSION ]]; then
-	PZ_VERSION="$(cat /PZ_VERSION 2>/dev/null || echo unknown)"
+# Expose the Steam buildid baked into the image
+if [[ -z "${PZ_BUILD_ID:-}" && -f /PZ_BUILD_ID ]]; then
+	PZ_BUILD_ID="$(cat /PZ_BUILD_ID 2>/dev/null || echo unknown)"
 fi
 
 # Disable automatic export
