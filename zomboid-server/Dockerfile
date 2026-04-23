@@ -1,4 +1,4 @@
-FROM ghcr.io/steamcmd/steamcmd:ubuntu-24
+FROM ghcr.io/steamcmd/steamcmd:ubuntu-22
 
 ARG RCON_CLI_VERSION=0.10.3
 ENV ZOMBOID_SERVER_APP_ID=380870
@@ -20,12 +20,11 @@ RUN mkdir -p /pzomboid-server \
 
 VOLUME ["${STEAM_WORKSHOP_DEFAULT_DIR}", "${CACHE_DIR}"]
 
+COPY ./defaults /defaults
 COPY ./scripts /scripts
 
 RUN chmod -R a+x /scripts \
-    && /scripts/build/generate-defaults.sh \
     && /scripts/build/install-admin-console.sh \
-    && PZ_VERSION=$(/scripts/build/find_server_version.sh || echo failed-to-retreive) \
-    && echo "${PZ_VERSION}" > /PZ_VERSION
+    && /scripts/build/find_build_id.sh > /PZ_BUILD_ID
 
 ENTRYPOINT ["bash", "/scripts/entrypoint.sh"]

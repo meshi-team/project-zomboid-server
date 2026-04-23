@@ -1,20 +1,7 @@
 #!/usr/bin/env bash
 
-# generate-defaults.sh - Generates the default files Project Zomboid configuration
-#
-# This script starts the Project Zomboid server in the background to generate the
-# default configuration files, specifically the servertest_SandboxVars.lua file and
-# servertest.ini file.
-#
-# It waits for up to 120 seconds for the file to be created, then stops the server.
-# If the file is not created within the timeout, it exits with an error.
-#
-# The generated files are copied to /defaults/default_SandboxVars.lua and
-# /defaults/default.ini.
-#
-# Usage:
-#   ./generate-defaults.sh
-#
+# generate-defaults.sh - Dev utility to regenerate zomboid-server/defaults/.
+# Not invoked at build time. Run inside a built container when bumping PZ.
 
 SERVER_DIR="${SERVER_DIR:-/pzomboid-server}"
 CACHE_DIR="${CACHE_DIR:-/root/Zomboid}"
