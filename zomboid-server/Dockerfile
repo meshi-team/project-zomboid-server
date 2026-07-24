@@ -12,7 +12,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ARG PZ_BETA_BRANCH=""
-RUN mkdir -p /pzomboid-server \
+# Consumed only to invalidate this layer's cache: the release workflow passes a
+# per-run value so every release downloads the current build from Steam.
+ARG STEAM_REFRESH=0
+RUN echo "steam-refresh=${STEAM_REFRESH}" \
+    && mkdir -p /pzomboid-server \
     && steamcmd +login anonymous +quit \
     && steamcmd +force_install_dir /pzomboid-server \
     +login anonymous \

@@ -64,8 +64,7 @@ jobs:
           build-args: |
             BUILD_DATE=${{ steps.meta.outputs.build_date }}
             VCS_REF=${{ steps.meta.outputs.vcs_ref }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            STEAM_REFRESH=${{ github.run_id }}
 
       - name: Read PZ buildid
         id: buildid
@@ -106,6 +105,7 @@ jobs:
           build-args: |
             BUILD_DATE=${{ steps.meta.outputs.build_date }}
             VCS_REF=${{ steps.meta.outputs.vcs_ref }}
+            STEAM_REFRESH=${{ github.run_id }}
             PZ_VERSION=${{ steps.semver.outputs.semver }}
             PZ_BUILD_ID=${{ steps.buildid.outputs.buildid }}
           tags: |
@@ -113,8 +113,6 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.semver.outputs.semver }}
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Sync Docker Hub description
         if: ${{ !inputs.dry_run }}
