@@ -47,10 +47,11 @@ Then connect in-game to `localhost:16261`.
 
 | Tag | Meaning |
 |---|---|
-| `latest` | Latest published build — bleeding edge |
+| `latest` | Latest stable release (Build 41) |
+| `unstable` | Latest release from Steam's `unstable` beta branch (Build 42) |
 | `x.y.z` (e.g. `41.78.19`) | Pinned to the Project Zomboid server semver at build time |
 
-Pin to `x.y.z` for predictable production deployments. Use `latest` for hobby servers.
+Pin to `x.y.z` for predictable production deployments. Use `latest` for hobby servers. The `unstable` tag follows the Build 42 beta — expect breaking changes between updates.
 
 ## Configuration
 
@@ -125,7 +126,7 @@ Common commands: `players`, `kickuser`, `banuser`, `grantadmin`, `save`, `quit`,
 
 ## Image metadata
 
-This image publishes [OCI image labels](https://github.com/opencontainers/image-spec/blob/main/annotations.md) including `org.opencontainers.image.version` (PZ semver) and `com.projectzomboid.buildId` (Steam buildid). Inspect with:
+This image publishes [OCI image labels](https://github.com/opencontainers/image-spec/blob/main/annotations.md) including `org.opencontainers.image.version` (PZ semver), `com.projectzomboid.buildId` (Steam buildid) and `com.projectzomboid.steamBranch` (Steam branch the server was installed from). Inspect with:
 
 ```bash
 docker inspect m4lagon/project-zomboid-server:latest \
