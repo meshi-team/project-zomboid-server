@@ -14,6 +14,16 @@ on:
         description: Build and probe only, skip push and tag
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      track:
+        description: Release track, stable (Build 41) or unstable (Build 42 beta)
+        type: string
+        default: stable
+      dry_run:
+        description: Build and probe only, skip push and tag
+        type: boolean
+        default: false
 
 env:
   IMAGE_NAME: project-zomboid-server
