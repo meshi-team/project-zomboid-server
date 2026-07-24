@@ -3,6 +3,13 @@ name: Release Docker image
 on:
   workflow_dispatch:
     inputs:
+      track:
+        description: Release track, stable (Build 41) or unstable (Build 42 beta)
+        type: choice
+        options:
+          - stable
+          - unstable
+        default: stable
       dry_run:
         description: Build and probe only, skip push and tag
         type: boolean
@@ -39,6 +46,30 @@ jobs:
           echo "build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
           echo "vcs_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve track settings
+        id: track
+        shell: bash
+        run: |
+          case "${{ inputs.track }}" in
+            stable)
+              BETA_BRANCH=""
+              MOVING_TAG="latest"
+              ;;
+            unstable)
+              BETA_BRANCH="unstable"
+              MOVING_TAG="unstable"
+              ;;
+            *)
+              echo "::error::Unknown track '${{ inputs.track }}'"
+              exit 1
+              ;;
+          esac
+          {
+            echo "beta_branch=$BETA_BRANCH"
+            echo "moving_tag=$MOVING_TAG"
+          } >> "$GITHUB_OUTPUT"
+          echo "Track '${{ inputs.track }}': beta branch '${BETA_BRANCH:-<public>}', moving tag '$MOVING_TAG'"
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -64,8 +95,8 @@ jobs:
           build-args: |
             BUILD_DATE=${{ steps.meta.outputs.build_date }}
             VCS_REF=${{ steps.meta.outputs.vcs_ref }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            PZ_BETA_BRANCH=${{ steps.track.outputs.beta_branch }}
+            STEAM_REFRESH=${{ github.run_id }}
 
       - name: Read PZ buildid
         id: buildid
@@ -106,15 +137,15 @@ jobs:
           build-args: |
             BUILD_DATE=${{ steps.meta.outputs.build_date }}
             VCS_REF=${{ steps.meta.outputs.vcs_ref }}
+            PZ_BETA_BRANCH=${{ steps.track.outputs.beta_branch }}
+            STEAM_REFRESH=${{ github.run_id }}
             PZ_VERSION=${{ steps.semver.outputs.semver }}
             PZ_BUILD_ID=${{ steps.buildid.outputs.buildid }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.semver.outputs.semver }}
-            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.track.outputs.moving_tag }}
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.semver.outputs.semver }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.track.outputs.moving_tag }}
 
       - name: Sync Docker Hub description
         if: ${{ !inputs.dry_run }}
@@ -145,6 +176,7 @@ jobs:
             echo ""
             echo "| | |"
             echo "|---|---|"
+            echo "| Track | \`${{ inputs.track }}\` |"
             echo "| PZ semver | \`${{ steps.semver.outputs.semver }}\` |"
             echo "| Steam buildid | \`${{ steps.buildid.outputs.buildid }}\` |"
             echo "| Git SHA | \`${{ github.sha }}\` |"
@@ -154,10 +186,11 @@ jobs:
               GHCR="ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
               DH="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}"
               SEMVER="${{ steps.semver.outputs.semver }}"
+              MOVING="${{ steps.track.outputs.moving_tag }}"
               echo "### Published tags"
               echo "- \`$GHCR:$SEMVER\`"
-              echo "- \`$GHCR:latest\`"
+              echo "- \`$GHCR:$MOVING\`"
               echo "- \`$DH:$SEMVER\`"
-              echo "- \`$DH:latest\`"
+              echo "- \`$DH:$MOVING\`"
             fi
           } >> "$GITHUB_STEP_SUMMARY"

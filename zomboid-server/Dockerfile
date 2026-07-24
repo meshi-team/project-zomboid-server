@@ -11,11 +11,16 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-pip python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /pzomboid-server \
+ARG PZ_BETA_BRANCH=""
+# Consumed only to invalidate this layer's cache: the release workflow passes a
+# per-run value so every release downloads the current build from Steam.
+ARG STEAM_REFRESH=0
+RUN echo "steam-refresh=${STEAM_REFRESH}" \
+    && mkdir -p /pzomboid-server \
     && steamcmd +login anonymous +quit \
     && steamcmd +force_install_dir /pzomboid-server \
     +login anonymous \
-    +app_update ${ZOMBOID_SERVER_APP_ID} validate \
+    +app_update ${ZOMBOID_SERVER_APP_ID} ${PZ_BETA_BRANCH:+-beta ${PZ_BETA_BRANCH}} validate \
     +quit
 
 VOLUME ["${STEAM_WORKSHOP_DEFAULT_DIR}", "${CACHE_DIR}"]
@@ -47,6 +52,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.description="Project Zomboid dedicated server (v${PZ_VERSION}) container image with persistent world storage, workshop mod support, and customizable configuration."
 LABEL com.projectzomboid.version="${PZ_VERSION}"
 LABEL com.projectzomboid.buildId="${PZ_BUILD_ID}"
+LABEL com.projectzomboid.steamBranch="${PZ_BETA_BRANCH:-public}"
 LABEL io.github.meshi-team.project-zomboid-server.maintainer="Meshi Team"
 LABEL io.github.meshi-team.project-zomboid-server.is-production="true"
 
