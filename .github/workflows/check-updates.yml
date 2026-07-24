@@ -1,0 +1,116 @@
+name: Check for server updates
+
+on:
+  schedule:
+    - cron: 0 */6 * * *
+  workflow_dispatch:
+
+concurrency:
+  group: check-updates
+
+env:
+  IMAGE_NAME: project-zomboid-server
+  PZ_APP_ID: 380870
+
+jobs:
+  check:
+    name: Compare Steam buildids with published images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      stable_changed: ${{ steps.compare.outputs.stable_changed }}
+      unstable_changed: ${{ steps.compare.outputs.unstable_changed }}
+    steps:
+      - name: Read current buildids from Steam
+        id: steam
+        shell: bash
+        run: |
+          docker run --rm -e APP_ID="$PZ_APP_ID" --entrypoint bash \
+            ghcr.io/steamcmd/steamcmd:ubuntu-22 -c '
+              steamcmd +login anonymous +quit > /dev/null 2>&1
+              steamcmd +login anonymous +app_info_update 1 +app_info_print "$APP_ID" +quit
+            ' > appinfo.txt
+
+          branch_buildid() {
+            awk -v branch="\"$1\"" '
+              $1 == "\"branches\"" { in_branches = 1; next }
+              in_branches && $1 == branch { in_branch = 1; next }
+              in_branch && $1 == "\"buildid\"" { gsub(/"/, "", $2); print $2; exit }
+            ' appinfo.txt
+          }
+
+          STABLE=$(branch_buildid public)
+          UNSTABLE=$(branch_buildid unstable)
+          for BUILDID in "$STABLE" "$UNSTABLE"; do
+            if [[ ! "$BUILDID" =~ ^[0-9]+$ ]]; then
+              echo "::error::Failed to parse a buildid from app_info_print (got '$BUILDID')"
+              exit 1
+            fi
+          done
+          {
+            echo "stable=$STABLE"
+            echo "unstable=$UNSTABLE"
+          } >> "$GITHUB_OUTPUT"
+          echo "Steam buildids: public=$STABLE, unstable=$UNSTABLE"
+
+      - name: Read buildids of the published images
+        id: published
+        shell: bash
+        run: |
+          published_buildid() {
+            docker buildx imagetools inspect \
+              "ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME:$1" \
+              --format '{{index .Image.Config.Labels "com.projectzomboid.buildId"}}' \
+              2> /dev/null || true
+          }
+
+          STABLE=$(published_buildid latest)
+          UNSTABLE=$(published_buildid unstable)
+          {
+            echo "stable=$STABLE"
+            echo "unstable=$UNSTABLE"
+          } >> "$GITHUB_OUTPUT"
+          echo "Published buildids: latest='$STABLE', unstable='$UNSTABLE'"
+
+      - name: Compare buildids
+        id: compare
+        shell: bash
+        run: |
+          STABLE_CHANGED=false
+          UNSTABLE_CHANGED=false
+          if [[ "${{ steps.steam.outputs.stable }}" != "${{ steps.published.outputs.stable }}" ]]; then
+            STABLE_CHANGED=true
+          fi
+          if [[ "${{ steps.steam.outputs.unstable }}" != "${{ steps.published.outputs.unstable }}" ]]; then
+            UNSTABLE_CHANGED=true
+          fi
+          {
+            echo "stable_changed=$STABLE_CHANGED"
+            echo "unstable_changed=$UNSTABLE_CHANGED"
+          } >> "$GITHUB_OUTPUT"
+          echo "stable changed: $STABLE_CHANGED, unstable changed: $UNSTABLE_CHANGED"
+
+  release-stable:
+    name: Release stable
+    needs: check
+    if: needs.check.outputs.stable_changed == 'true'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/release-image.yml
+    with:
+      track: stable
+    secrets: inherit
+
+  release-unstable:
+    name: Release unstable
+    needs: check
+    if: needs.check.outputs.unstable_changed == 'true'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/release-image.yml
+    with:
+      track: unstable
+    secrets: inherit
