@@ -2,6 +2,10 @@
 
 Docker image for running a **Project Zomboid** dedicated server. Fully configurable via environment variables, with built-in Steam Workshop support, automatic map integration, and an RCON-powered admin console.
 
+> 🧟 **Build 42 now available!** Run the beta with the `unstable` tag — `latest` stays on stable Build 41.
+
+> 🧩 **Workshop collections now supported!** Set `WORKSHOP_COLLECTIONS` to your Steam collection IDs and Workshop items and mods are resolved automatically.
+
 - **Source**: https://github.com/meshi-team/project-zomboid-server
 - **Full documentation**: [README on GitHub](https://github.com/meshi-team/project-zomboid-server#readme)
 - **Issues**: https://github.com/meshi-team/project-zomboid-server/issues
@@ -106,13 +110,16 @@ Bind-mount both for persistence across container recreations.
 
 ## Steam Workshop & mods
 
-Two environment variables drive Workshop integration:
+Three environment variables drive Workshop integration:
 
 ```yaml
 environment:
   - WORKSHOP_ITEMS=1234567890;9876543210    # Workshop IDs to download
   - MODS=CoolMod;MapMod                      # Mod IDs to enable (from mod.info)
+  - WORKSHOP_COLLECTIONS=1122334455          # Collection IDs to expand automatically
 ```
+
+Workshop collections are expanded at startup via the Steam Web API: their items are downloaded and each Mod ID is derived from the `Mod ID:` line in the item's Workshop description. Ambiguous items (e.g. mods with several variants) are reported in the logs so you can pick the right variant in `MODS`.
 
 Map-adding mods are auto-integrated: the `MAP` variable and `spawnregions.lua` are updated automatically. Clients must subscribe to the same mods to join.
 

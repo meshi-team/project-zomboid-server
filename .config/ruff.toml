@@ -13,6 +13,7 @@ target-version = "py312"
 [lint]
 select       = ["ALL"]
 ignore       = [
+  "CPY001",
   "D100",
   "INP001",
   "ERA001",

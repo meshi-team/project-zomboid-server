@@ -8,11 +8,12 @@ Workshop flow (high-level):
 flowchart TD
       A["Entrypoint starts"] --> B["Load env and resolve paths"]
       B --> C["Run WorkshopManager"]
-      C --> D["Download missing items"]
+      C --> C2["Expand WORKSHOP_COLLECTIONS (Steam Web API)"]
+      C2 --> D["Download missing items"]
       D --> E["Update server links and manifest"]
       E --> F["Discover maps (active MODS)"]
       F --> G["Generate spawnregions.lua"]
-      G --> H["Update WORKSHOP_ITEMS (successful set)"]
+      G --> H["Update WORKSHOP_ITEMS and MODS (resolved sets)"]
       H --> I["Compute MAP string"]
       I --> J{"Optional: override MAP (env)"}
       J --> K["Run ServerManager (INI + SandboxVars)"]
@@ -35,6 +36,7 @@ The orchestrator loads environment variables, runs the WorkshopManager first, th
 At a high level, WorkshopManager ensures the server has the correct set of mods ready to load:
 
 - Read selection from `WORKSHOP_ITEMS` (semicolon-separated Workshop IDs)
+- Expand `WORKSHOP_COLLECTIONS` into Workshop items and mod IDs via the Steam Web API
 - Discover already downloaded items in the Steam workshop content path
 - Download missing items one-by-one using SteamCMD (game app id `108600`)
 - Synchronize symlinks under the server’s workshop directory so the server “sees” the same content
@@ -49,7 +51,9 @@ The workshop preparation runs as a small, ordered pipeline before any server con
 
 ### Selection and inputs
 
-We start with two user inputs: `WORKSHOP_ITEMS` (semicolon‑separated Workshop IDs) and `MODS` (active Mod IDs). Both are read from the environment and normalized—empty fragments and stray spaces are ignored—so the rest of the flow works with a clean selection.
+We start with three user inputs: `WORKSHOP_ITEMS` (semicolon‑separated Workshop IDs), `MODS` (active Mod IDs), and `WORKSHOP_COLLECTIONS` (Workshop collection IDs). All are read from the environment and normalized—empty fragments and stray spaces are ignored—so the rest of the flow works with a clean selection.
+
+When collections are provided, they are expanded before anything is downloaded. Two public Steam Web API endpoints are used (no API key required): `GetCollectionDetails` turns each collection into the Workshop items it contains, and `GetPublishedFileDetails` fetches each item's description, from which the Mod ID is derived by parsing the `Mod ID: <id>` convention that Project Zomboid authors follow (BBCode formatting is stripped first). The parsing is deliberately conservative: banned items, items without a `Mod ID:` line, and items declaring several different Mod IDs (e.g. mods that ship multiple variants) are skipped and reported in the logs so the right ID can be added to `MODS` manually. A network failure only skips the expansion—the startup continues with the manually configured selection.
 
 ### Discovery and downloads
 
@@ -75,13 +79,15 @@ Important: some mod combinations may require a specific load order for compatibi
 
 ### Hand‑off to configuration
 
-Once downloads, links, maps, spawn regions, and the `MAP` value are settled (with any override applied), control moves to the general server configuration (INI + SandboxVars). Replacements are applied with confidence that the declared mods and maps actually exist on disk.
+Once downloads, links, maps, spawn regions, and the `MAP` value are settled (with any override applied), control moves to the general server configuration (INI + SandboxVars). `WORKSHOP_ITEMS` is updated to the set that actually downloaded, and `MODS` is updated to include the mods derived from collections—preserving the order of the manually listed ones (which defines the load order) and appending the derived ones alphabetically. Replacements are applied with confidence that the declared mods and maps actually exist on disk.
 
 ---
 
 ## 🔖 Identifiers and environment
 
 - WORKSHOP_ITEMS: semicolon-separated list of Workshop IDs selected by you.
+- MODS: semicolon-separated list of active Mod IDs (defines the load order).
+- WORKSHOP_COLLECTIONS: semicolon-separated list of Workshop collection IDs to expand automatically.
 - ZOMBOID_GAME_APP_ID: Steam game app id used for downloads (default: 108600).
 - ZOMBOID_SERVER_APP_ID: Steam dedicated server app id (default: 380870).
 - STEAM_WORKSHOP_DEFAULT_DIR: Root folder where Steam caches Workshop content.

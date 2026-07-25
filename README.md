@@ -3,6 +3,12 @@
 This repository provides a **Docker-based setup** for running a Project Zomboid dedicated server with advanced configuration options.
 It’s designed to be **easy to deploy**, **simple to customize**, and **ready for mods and workshop content** right out of the box.
 
+> [!IMPORTANT]
+> 🧟 **Build 42 now available!** Run the Build 42 beta with the `unstable` image tag — `latest` stays on stable Build 41.
+
+> [!TIP]
+> 🧩 **Workshop collections now supported!** Set `WORKSHOP_COLLECTIONS` to your Steam collection IDs and the server resolves Workshop items and mods automatically. See [Modding](#modding).
+
 <!-- markdownlint-disable MD051 -->
 <!-- markdownlint-disable MD033 -->
 
@@ -261,10 +267,13 @@ Bind-mount these directories on your host for backups and migrations.
 
 ## 🧩 Modding
 
-The server supports downloading and enabling mods/maps via Steam Workshop. Two key environment variables control this:
+The server supports downloading and enabling mods/maps via Steam Workshop. Three key environment variables control this:
 
 - `WORKSHOP_ITEMS` — list of Workshop item IDs. These are numeric IDs from Steam Workshop; the server uses this list to download the required content automatically.
 - `MODS` — list of Mod IDs. Only mods whose IDs are listed here will be loaded by the server (even if their Workshop items were downloaded).
+- `WORKSHOP_COLLECTIONS` — list of Workshop **collection** IDs. Each collection is expanded automatically at startup through the Steam Web API: every Workshop item it contains is downloaded, and its Mod ID is derived from the `Mod ID:` line that authors include in the item's Workshop description. Items whose Mod ID cannot be derived unambiguously (e.g. mods that ship several variants) are reported in the logs so you can add the right one to `MODS` manually.
+
+Collections can be combined freely with `WORKSHOP_ITEMS` and `MODS`: manual entries are always kept, and the order you give in `MODS` (which defines the mod load order) is preserved — mods derived from collections are appended alphabetically after it.
 
 ### Example
 
@@ -272,6 +281,7 @@ The server supports downloading and enabling mods/maps via Steam Workshop. Two k
 environment:
   - WORKSHOP_ITEMS=1234567890;9876543210 # IDs of Workshop items to download
   - MODS=CoolMod;ExtraMapMod # Mod IDs (from mod.info) to load
+  - WORKSHOP_COLLECTIONS=1122334455 # Collection IDs to expand automatically
 ```
 
 > [!NOTE]

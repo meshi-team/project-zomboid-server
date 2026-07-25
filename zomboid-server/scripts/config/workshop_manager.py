@@ -4,6 +4,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from collection_resolver import SteamCollectionResolver
 from utils import generate_symlink, setup_logger
 
 
@@ -12,6 +13,7 @@ class ProjectZomboidWorkshopManager:
 
     Responsibilities:
         - Read the selected Workshop item IDs (mods) from environment.
+        - Expand the selected Workshop collections into items and mods via the Steam Web API.
         - Detect which selected items are already downloaded in the Steam Workshop folder.
         - Download missing items (one-by-one) via `steamcmd`.
         - Synchronize symlinks under the server's workshop directory to point at downloaded items.
@@ -55,6 +57,7 @@ class ProjectZomboidWorkshopManager:
         self.server_wk_game_folder = self.server_workshop_folder / "content" / self.game_app_id
         self.server_workshop_items: set[str] = self.get_selected_workshop_items()
         self.active_mods: set[str] = self.get_selected_active_mods()
+        self._apply_workshop_collections()
         self.maps = set()
 
     @staticmethod
@@ -84,6 +87,45 @@ class ProjectZomboidWorkshopManager:
         """
         raw = os.getenv("MODS") or ""
         return {item.strip() for item in raw.split(";") if item.strip()}
+
+    @staticmethod
+    def get_selected_collections() -> set[str]:
+        """Read and normalize selected collections from the `WORKSHOP_COLLECTIONS` environment variable.
+
+        The variable is expected to be a semicolon-separated list of numeric collection IDs.
+        Empty segments and surrounding whitespace are ignored.
+
+        Returns:
+            A set of Workshop collection IDs (strings).
+
+        """
+        raw = os.getenv("WORKSHOP_COLLECTIONS") or ""
+        return {item.strip() for item in raw.split(";") if item.strip()}
+
+    def _apply_workshop_collections(self) -> None:
+        """Expand the selected Workshop collections into the current selection.
+
+        The Workshop items of each collection are added to the download selection,
+        and their mod IDs (derived from the item descriptions) to the active mods.
+        Items whose mod ID cannot be derived are reported in the logs so they can
+        be added manually through the `MODS` environment variable.
+        """
+        collection_ids = self.get_selected_collections()
+        if not collection_ids:
+            return
+
+        resolver = SteamCollectionResolver(self.logger)
+        collection_items = resolver.get_collection_items(collection_ids)
+        collection_mods = resolver.get_item_mod_ids(collection_items)
+
+        self.logger.info(
+            "Resolved %d collection(s) into %d workshop item(s) and %d mod(s).",
+            len(collection_ids),
+            len(collection_items),
+            len(collection_mods),
+        )
+        self.server_workshop_items |= collection_items
+        self.active_mods |= collection_mods
 
     def get_downloaded_workshop_items(self) -> set[str]:
         """Inspect the Steam Workshop folder to discover already downloaded items for the Zomboid game.
@@ -408,6 +450,17 @@ class ProjectZomboidWorkshopManager:
         self.maps = {rec["map"] for rec in maps_info if "map" in rec}
 
         self.generate_spawnpoints_file(maps_info)
+
+    def get_mods_string(self) -> str:
+        """Get the active mods as a semicolon-separated string.
+
+        Preserves the order given in the `MODS` environment variable (which
+        defines the mod load order) and appends the mods derived from Workshop
+        collections in alphabetical order.
+        """
+        selected = [mod.strip() for mod in (os.getenv("MODS") or "").split(";") if mod.strip()]
+        derived = sorted(self.active_mods - set(selected))
+        return ";".join(selected + derived)
 
     def get_maps_string(self) -> str:
         """Get the discovered maps as a semicolon-separated string.
