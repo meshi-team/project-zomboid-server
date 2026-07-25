@@ -29,6 +29,11 @@ def main() -> None:
     if os.getenv("MAP"):
         variables["MAP"] = os.getenv("MAP")
 
+    # Update MODS so the mods derived from Workshop collections are activated
+    # along with the manually selected ones
+    if wk_manager.active_mods:
+        variables["MODS"] = wk_manager.get_mods_string()
+
     log_section(logger, "Server configuration")
 
     # Then proceed with server configuration
