@@ -153,7 +153,7 @@ class ProjectZomboidWorkshopManager:
         pending = [wid for wid in self.server_workshop_items if wid not in downloaded]
         if pending:
             # Warm steamcmd's license cache; skipping this races `+workshop_download_item`.
-            subprocess.run(  # noqa: S603
+            subprocess.run(
                 ["steamcmd", "+login", "anonymous", "+quit"],  # noqa: S607
                 check=False,
                 capture_output=True,
