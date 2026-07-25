@@ -2,6 +2,10 @@
 
 Docker image for running a **Project Zomboid** dedicated server. Fully configurable via environment variables, with built-in Steam Workshop support, automatic map integration, and an RCON-powered admin console.
 
+> 🧟 **Build 42 now available!** Run the beta with the `unstable` tag — `latest` stays on stable Build 41.
+
+> 🧩 **Workshop collections now supported!** Set `WORKSHOP_COLLECTIONS` to your Steam collection IDs and Workshop items and mods are resolved automatically.
+
 - **Source**: https://github.com/meshi-team/project-zomboid-server
 - **Full documentation**: [README on GitHub](https://github.com/meshi-team/project-zomboid-server#readme)
 - **Issues**: https://github.com/meshi-team/project-zomboid-server/issues

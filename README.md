@@ -3,6 +3,12 @@
 This repository provides a **Docker-based setup** for running a Project Zomboid dedicated server with advanced configuration options.
 It’s designed to be **easy to deploy**, **simple to customize**, and **ready for mods and workshop content** right out of the box.
 
+> [!IMPORTANT]
+> 🧟 **Build 42 now available!** Run the Build 42 beta with the `unstable` image tag — `latest` stays on stable Build 41.
+
+> [!TIP]
+> 🧩 **Workshop collections now supported!** Set `WORKSHOP_COLLECTIONS` to your Steam collection IDs and the server resolves Workshop items and mods automatically. See [Modding](#modding).
+
 <!-- markdownlint-disable MD051 -->
 <!-- markdownlint-disable MD033 -->
 
