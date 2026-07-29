@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       track:
-        description: Release track, stable (Build 41) or unstable (Build 42 beta)
+        description: Release track, stable (public branch) or unstable (beta branch, when present)
         type: choice
         options:
           - stable
@@ -17,7 +17,7 @@ on:
   workflow_call:
     inputs:
       track:
-        description: Release track, stable (Build 41) or unstable (Build 42 beta)
+        description: Release track, stable (public branch) or unstable (beta branch, when present)
         type: string
         default: stable
       dry_run:
