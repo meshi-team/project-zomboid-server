@@ -42,12 +42,18 @@ jobs:
 
           STABLE=$(branch_buildid public)
           UNSTABLE=$(branch_buildid unstable)
-          for BUILDID in "$STABLE" "$UNSTABLE"; do
-            if [[ ! "$BUILDID" =~ ^[0-9]+$ ]]; then
-              echo "::error::Failed to parse a buildid from app_info_print (got '$BUILDID')"
-              exit 1
-            fi
-          done
+          if [[ ! "$STABLE" =~ ^[0-9]+$ ]]; then
+            echo "::error::Failed to parse the public buildid from app_info_print (got '$STABLE')"
+            exit 1
+          fi
+          # The unstable branch comes and goes: TIS removes it when a beta is
+          # promoted to public and recreates it for the next beta cycle.
+          if [[ -z "$UNSTABLE" ]]; then
+            echo "::notice::Steam appinfo has no 'unstable' branch; skipping the unstable track"
+          elif [[ ! "$UNSTABLE" =~ ^[0-9]+$ ]]; then
+            echo "::error::Failed to parse the unstable buildid from app_info_print (got '$UNSTABLE')"
+            exit 1
+          fi
           {
             echo "stable=$STABLE"
             echo "unstable=$UNSTABLE"
@@ -82,7 +88,8 @@ jobs:
           if [[ "${{ steps.steam.outputs.stable }}" != "${{ steps.published.outputs.stable }}" ]]; then
             STABLE_CHANGED=true
           fi
-          if [[ "${{ steps.steam.outputs.unstable }}" != "${{ steps.published.outputs.unstable }}" ]]; then
+          STEAM_UNSTABLE="${{ steps.steam.outputs.unstable }}"
+          if [[ -n "$STEAM_UNSTABLE" && "$STEAM_UNSTABLE" != "${{ steps.published.outputs.unstable }}" ]]; then
             UNSTABLE_CHANGED=true
           fi
           {
