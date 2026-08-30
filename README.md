@@ -267,11 +267,13 @@ Bind-mount these directories on your host for backups and migrations.
 
 ## 🧩 Modding
 
-The server supports downloading and enabling mods/maps via Steam Workshop. Three key environment variables control this:
+The server supports downloading and enabling mods/maps via Steam Workshop. These environment variables control it:
 
 - `WORKSHOP_ITEMS` — list of Workshop item IDs. These are numeric IDs from Steam Workshop; the server uses this list to download the required content automatically.
 - `MODS` — list of Mod IDs. Only mods whose IDs are listed here will be loaded by the server (even if their Workshop items were downloaded).
 - `WORKSHOP_COLLECTIONS` — list of Workshop **collection** IDs. Each collection is expanded automatically at startup through the Steam Web API: every Workshop item it contains is downloaded, and its Mod ID is derived from the `Mod ID:` line that authors include in the item's Workshop description. Items whose Mod ID cannot be derived unambiguously (e.g. mods that ship several variants) are reported in the logs so you can add the right one to `MODS` manually.
+
+- `WORKSHOP_AUTO_UPDATE` — keep downloaded items in sync with Steam. Enabled by default; set it to `0` to opt out.
 
 Collections can be combined freely with `WORKSHOP_ITEMS` and `MODS`: manual entries are always kept, and the order you give in `MODS` (which defines the mod load order) is preserved — mods derived from collections are appended alphabetically after it.
 
@@ -283,6 +285,24 @@ environment:
   - MODS=CoolMod;ExtraMapMod # Mod IDs (from mod.info) to load
   - WORKSHOP_COLLECTIONS=1122334455 # Collection IDs to expand automatically
 ```
+
+### Keeping mods up to date
+
+Mod authors publish updates, and a server still serving the old files rejects players with
+`workshop item version is different than the server`. On every start the container asks the Steam Web API when
+each downloaded item was last updated and compares that against what Steam recorded at install time. Items that
+changed are downloaded again before the server comes up.
+
+The old copy is kept aside until the new one lands, so a failed download leaves the previous version in place
+(stale but playable) instead of losing the mod. If Steam cannot be reached, nothing is touched and the server
+starts with what it already has.
+
+The check is one batched API call, not a `steamcmd` run per mod, so it costs little at startup. Set
+`WORKSHOP_AUTO_UPDATE=0` to skip it and pin your mods to whatever is on disk.
+
+> [!IMPORTANT]
+> Updating mods mid-save can break an ongoing world (items that no longer exist, changed recipes). Back up
+> `Zomboid/Saves/` before a session where mods will change, and expect clients to need the same updates.
 
 > [!NOTE]
 > The container downloads Workshop content into Steam’s shared Workshop cache (default: `/root/.local/share/Steam/steamapps/workshop`).

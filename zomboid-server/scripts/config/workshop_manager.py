@@ -2,10 +2,12 @@ import os
 import re
 import shutil
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 
 from collection_resolver import SteamCollectionResolver
 from utils import generate_symlink, setup_logger
+from workshop_manifest import prune_items, read_installed_times
 
 
 class ProjectZomboidWorkshopManager:
@@ -15,10 +17,12 @@ class ProjectZomboidWorkshopManager:
         - Read the selected Workshop item IDs (mods) from environment.
         - Expand the selected Workshop collections into items and mods via the Steam Web API.
         - Detect which selected items are already downloaded in the Steam Workshop folder.
+        - Detect which downloaded items Steam has updated since they were installed.
         - Download missing items (one-by-one) via `steamcmd`.
         - Synchronize symlinks under the server's workshop directory to point at downloaded items.
 
     Attributes:
+        - auto_update: Whether to refresh items Steam has updated (WORKSHOP_AUTO_UPDATE).
         - server_app_id: Steam App ID for the dedicated server (default: 380870).
         - game_app_id: Steam App ID for the Zomboid game (default: 108600).
         - success_re: Regex to detect successful download messages from `steamcmd`.
@@ -32,6 +36,8 @@ class ProjectZomboidWorkshopManager:
 
     server_app_id = os.getenv("ZOMBOID_SERVER_APP_ID", "380870")
     game_app_id = os.getenv("ZOMBOID_GAME_APP_ID", "108600")
+
+    auto_update = os.getenv("WORKSHOP_AUTO_UPDATE", "1") != "0"
 
     cache_dir = os.getenv("CACHE_DIR", "/root/Zomboid")
     defaults_dir = os.getenv("DEFAULTS_DIR", "/defaults")
@@ -55,6 +61,7 @@ class ProjectZomboidWorkshopManager:
         self.steam_wk_game_folder = Path(self.steam_workshop_folder) / "content" / self.game_app_id
         self.server_workshop_folder = Path(server_folder) / "steamapps" / "workshop"
         self.server_wk_game_folder = self.server_workshop_folder / "content" / self.game_app_id
+        self.steam_wk_manifest = Path(self.steam_workshop_folder) / f"appworkshop_{self.game_app_id}.acf"
         self.server_workshop_items: set[str] = self.get_selected_workshop_items()
         self.active_mods: set[str] = self.get_selected_active_mods()
         self._apply_workshop_collections()
@@ -138,20 +145,156 @@ class ProjectZomboidWorkshopManager:
             return set()
         return {p.name for p in self.steam_wk_game_folder.iterdir() if p.name.isdigit() and p.is_dir()}
 
+    def _item_mtime(self, wid: str) -> int:
+        """Return the modification time of a downloaded item, or 0 if unreadable."""
+        try:
+            return int((self.steam_wk_game_folder / wid).stat().st_mtime)
+        except OSError:
+            return 0
+
+    def get_outdated_workshop_items(self, downloaded: set[str]) -> set[str]:
+        """Find downloaded Workshop items that Steam has updated since install.
+
+        Steam records when each item was installed in its manifest, and the
+        public Web API reports when each item was last updated. An item whose
+        remote update is newer than its local install is what makes players hit
+        "workshop item version is different than the server" on connect.
+
+        Items missing from the manifest fall back to the modification time of
+        their folder, which is when `steamcmd` last wrote them.
+
+        Args:
+            downloaded: Workshop item IDs currently present on disk.
+
+        Returns:
+            The subset of `downloaded` that is out of date. Empty when the check
+            is disabled or Steam could not be reached, so a network hiccup never
+            turns into a re-download storm.
+
+        """
+        candidates = downloaded & self.server_workshop_items
+        if not self.auto_update or not candidates:
+            return set()
+
+        self.logger.info("Checking %d downloaded item(s) for updates...", len(candidates))
+        installed = read_installed_times(self.steam_wk_manifest)
+        remote = SteamCollectionResolver(self.logger).get_item_update_times(candidates)
+
+        if not remote:
+            self.logger.warning("Could not reach Steam to check for updates, keeping the items already on disk.")
+            return set()
+
+        outdated: set[str] = set()
+        for wid in sorted(candidates):
+            remote_updated = remote.get(wid)
+            if remote_updated is None:
+                self.logger.warning("Steam returned no details for %s, leaving it as is.", wid)
+                continue
+
+            local_updated = installed.get(wid) or self._item_mtime(wid)
+            if remote_updated > local_updated:
+                outdated.add(wid)
+                self.logger.info(
+                    "Workshop item %s is out of date (local %s, steam %s).",
+                    wid,
+                    self._stamp(local_updated),
+                    self._stamp(remote_updated),
+                )
+
+        if outdated:
+            self.logger.info("%d item(s) will be refreshed.", len(outdated))
+        else:
+            self.logger.info("All downloaded items are up to date.")
+
+        return outdated
+
+    @staticmethod
+    def _stamp(epoch: int) -> str:
+        """Render a Unix timestamp as a readable UTC date, or '?' when unknown."""
+        return datetime.fromtimestamp(epoch, tz=UTC).strftime("%Y-%m-%d %H:%M") if epoch else "?"
+
+    def _stash_item(self, wid: str) -> Path | None:
+        """Move an item's folder aside so a failed refresh can be rolled back.
+
+        Downloading over the old folder would leave behind files the new version
+        deleted, and deleting it outright would lose the mod if the download
+        fails, so the old copy is kept until the new one lands.
+
+        Args:
+            wid: Workshop item ID being refreshed.
+
+        Returns:
+            The path the folder was moved to, or None when it could not be moved.
+
+        """
+        source = self.steam_wk_game_folder / wid
+        stash = self.steam_wk_game_folder / f".{wid}.outdated"
+        try:
+            if stash.is_dir():
+                shutil.rmtree(stash)
+            source.rename(stash)
+        except OSError as exc:
+            self.logger.error("Could not set %s aside for refresh (%s), keeping the current copy.", wid, exc)
+            return None
+        return stash
+
+    def _restore_item(self, wid: str, stash: Path) -> None:
+        """Put a stashed item folder back after a failed refresh."""
+        target = self.steam_wk_game_folder / wid
+        try:
+            if target.is_dir():
+                shutil.rmtree(target)
+            stash.rename(target)
+        except OSError as exc:
+            self.logger.error("Could not restore %s after a failed refresh: %s", wid, exc)
+            return
+        self.logger.warning("Restored the previous copy of %s; it stays out of date until the next start.", wid)
+
+    def _recover_stashes(self) -> None:
+        """Restore folders left behind by a refresh that was interrupted.
+
+        A container killed mid-download leaves the old copy stashed with nothing
+        in its place; putting it back keeps the mod available.
+        """
+        if not self.steam_wk_game_folder.is_dir():
+            return
+
+        suffix = ".outdated"
+        for stash in self.steam_wk_game_folder.glob(f".*{suffix}"):
+            wid = stash.name[1 : -len(suffix)]
+            if not stash.is_dir() or not wid.isdigit():
+                continue
+
+            if (self.steam_wk_game_folder / wid).is_dir():
+                shutil.rmtree(stash, ignore_errors=True)
+                continue
+
+            self.logger.warning("Found an interrupted refresh of %s, restoring the previous copy.", wid)
+            self._restore_item(wid, stash)
+
     def download_workshop_items(self) -> None:
-        """Download selected Workshop items one-by-one using `steamcmd`.
+        """Download missing Workshop items and refresh the outdated ones.
 
         Behavior:
-            - Skips items already present on disk.
-            - Items that show an error (or nonzero return code) are collected as failed and
-              removed from `self.server_workshop_items` at the end.
+            - Items already present and up to date are skipped.
+            - Items Steam has updated are re-downloaded, keeping the old copy
+              until the new one lands.
+            - Items that fail their first download are collected as failed and
+              removed from `self.server_workshop_items` at the end. A failed
+              refresh keeps the item, since its files are still on disk.
         """
+        self._recover_stashes()
         downloaded = self.get_downloaded_workshop_items()
+        outdated = self.get_outdated_workshop_items(downloaded)
         succeeded: set[str] = set()
         failed: set[str] = set()
 
-        pending = [wid for wid in self.server_workshop_items if wid not in downloaded]
-        if pending:
+        # Steam skips items its manifest still claims as installed.
+        if outdated and not prune_items(self.steam_wk_manifest, outdated):
+            self.logger.error("Could not update %s, skipping the refresh this start.", self.steam_wk_manifest)
+            outdated = set()
+
+        if [wid for wid in self.server_workshop_items if wid not in downloaded or wid in outdated]:
             # Warm steamcmd's license cache; skipping this races `+workshop_download_item`.
             subprocess.run(
                 ["steamcmd", "+login", "anonymous", "+quit"],  # noqa: S607
@@ -160,15 +303,23 @@ class ProjectZomboidWorkshopManager:
                 text=True,
             )
 
-        for wid in self.server_workshop_items.copy():
+        for wid in sorted(self.server_workshop_items):
             self.logger.info("-" * 40)
             self.logger.info("Processing workshop item: %s", wid)
-            if wid in downloaded:
+
+            refreshing = wid in outdated
+            if wid in downloaded and not refreshing:
                 self.logger.info("Already present, skipping: %s", wid)
                 succeeded.add(wid)
                 continue
 
-            self.logger.info("Downloading: %s", wid)
+            stash = self._stash_item(wid) if refreshing else None
+            if refreshing and stash is None:
+                # The old copy could not be moved; leave it rather than risk losing the mod.
+                succeeded.add(wid)
+                continue
+
+            self.logger.info("%s: %s", "Refreshing" if refreshing else "Downloading", wid)
             steam_root = str(Path(self.steam_workshop_folder).parent.parent)
             command = [
                 "steamcmd",
@@ -191,27 +342,35 @@ class ProjectZomboidWorkshopManager:
 
             saw_success = any(self.success_re.search(line) for line in (installation.stdout or "").splitlines())
             saw_error = any(self.error_re.search(line) for line in (installation.stdout or "").splitlines())
+            landed = saw_success and not saw_error and installation.returncode == 0
 
-            if saw_error or installation.returncode != 0:
-                self.logger.error("Error reported during download of %s", wid)
+            if landed:
+                self.logger.info("%s succeeded: %s", "Refresh" if refreshing else "Download", wid)
+                succeeded.add(wid)
+                if stash is not None:
+                    shutil.rmtree(stash, ignore_errors=True)
+                continue
+
+            self.logger.error("Error reported during download of %s", wid)
+            if stash is not None:
+                # The mod is still on disk, so keep serving the copy we have.
+                self._restore_item(wid, stash)
+                succeeded.add(wid)
+            else:
                 self.logger.error("%s will be removed from the workshop list", wid)
                 failed.add(wid)
-
-            if saw_success:
-                self.logger.info("Download succeeded: %s", wid)
-                succeeded.add(wid)
 
         self.logger.info("-" * 40)
 
         if failed:
             self.logger.warning(
-                "Download summary → ok:%d, failed:%d (%s)",
+                "Download summary \u2192 ok:%d, failed:%d (%s)",
                 len(succeeded),
                 len(failed),
                 ", ".join(sorted(failed)),
             )
         else:
-            self.logger.info("Download summary → ok:%d, failed:0", len(succeeded))
+            self.logger.info("Download summary \u2192 ok:%d, failed:0", len(succeeded))
 
         self.server_workshop_items -= failed
         self.logger.info("-" * 40)
@@ -250,9 +409,8 @@ class ProjectZomboidWorkshopManager:
 
         self.logger.info("-" * 40)
         self.logger.info("Copying workshop manifest file.")
-        manifest_file = f"appworkshop_{self.game_app_id}.acf"
-        steam_wk_manifest = Path(self.steam_workshop_folder) / manifest_file
-        server_wk_manifest = self.server_workshop_folder / manifest_file
+        steam_wk_manifest = self.steam_wk_manifest
+        server_wk_manifest = self.server_workshop_folder / self.steam_wk_manifest.name
 
         if len(desired) == 0:
             if server_wk_manifest.exists():
