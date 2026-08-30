@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 import subprocess
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from collection_resolver import SteamCollectionResolver
@@ -211,7 +211,7 @@ class ProjectZomboidWorkshopManager:
     @staticmethod
     def _stamp(epoch: int) -> str:
         """Render a Unix timestamp as a readable UTC date, or '?' when unknown."""
-        return datetime.fromtimestamp(epoch, tz=UTC).strftime("%Y-%m-%d %H:%M") if epoch else "?"
+        return datetime.fromtimestamp(epoch, tz=timezone.utc).strftime("%Y-%m-%d %H:%M") if epoch else "?"
 
     def _stash_item(self, wid: str) -> Path | None:
         """Move an item's folder aside so a failed refresh can be rolled back.

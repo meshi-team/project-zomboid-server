@@ -30,7 +30,10 @@ chmod -R 777 "${CACHE_DIR}"
 # Update server configuration for custom settings
 if [[ -f "${SERVER_CONFIG_UPDATE_SCRIPT}" ]]; then
 	cd "$(dirname "${SERVER_CONFIG_UPDATE_SCRIPT}")" || echo "Error: Failed to change directory"
-	python3 "$(basename "${SERVER_CONFIG_UPDATE_SCRIPT}")"
+	if ! python3 "$(basename "${SERVER_CONFIG_UPDATE_SCRIPT}")"; then
+		echo "Error: Server configuration failed; refusing to start with mods and settings unapplied"
+		exit 1
+	fi
 else
 	echo "Warning: Server configuration update script not found: ${SERVER_CONFIG_UPDATE_SCRIPT}"
 	exit 1

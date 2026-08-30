@@ -8,7 +8,8 @@ exclude = [
 
 line-length   = 120
 indent-width  = 4
-target-version = "py312"
+# Must match the container runtime: ubuntu-22 ships Python 3.10.
+target-version = "py310"
 
 [lint]
 select       = ["ALL"]
