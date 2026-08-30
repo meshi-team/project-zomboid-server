@@ -3,8 +3,16 @@
 This repository provides a **Docker-based setup** for running a Project Zomboid dedicated server with advanced configuration options.
 It’s designed to be **easy to deploy**, **simple to customize**, and **ready for mods and workshop content** right out of the box.
 
+[![CI](https://img.shields.io/github/actions/workflow/status/meshi-team/project-zomboid-server/ci.yml?branch=main&label=CI)](https://github.com/meshi-team/project-zomboid-server/actions/workflows/ci.yml)
+[![GHCR](https://img.shields.io/github/v/tag/meshi-team/project-zomboid-server?sort=semver&label=ghcr&color=2496ED)](https://github.com/meshi-team/project-zomboid-server/pkgs/container/project-zomboid-server)
+[![Docker Hub](https://img.shields.io/docker/v/m4lagon/project-zomboid-server/latest?label=docker%20hub&color=2496ED)](https://hub.docker.com/r/m4lagon/project-zomboid-server)
+[![Pulls](https://img.shields.io/docker/pulls/m4lagon/project-zomboid-server?color=2496ED)](https://hub.docker.com/r/m4lagon/project-zomboid-server)
+
 > [!IMPORTANT]
-> 🧟 **Build 42 now available!** Run the Build 42 beta with the `unstable` image tag — `latest` stays on stable Build 41.
+> 🧟 **Build 42 is now the stable release.** Steam promoted Build 42 to its public branch, so `latest` serves it. Build 41 is legacy — pin `41.78.19` to stay on it.
+
+> [!TIP]
+> 🔄 **Mods now keep themselves up to date.** Workshop items the author has updated are re-downloaded at startup, which fixes clients being rejected with `workshop item version is different than the server`. See [Modding](#modding).
 
 > [!TIP]
 > 🧩 **Workshop collections now supported!** Set `WORKSHOP_COLLECTIONS` to your Steam collection IDs and the server resolves Workshop items and mods automatically. See [Modding](#modding).
@@ -61,7 +69,7 @@ Follow these simple steps to get a server running quickly with Docker. You can u
 ### 1) Pull the image
 
 ```bash
-docker pull ghcr.io/meshi-team/zomboid-server:latest
+docker pull ghcr.io/meshi-team/project-zomboid-server:latest
 ```
 
 ### 2) Create a minimal docker-compose.yml
@@ -71,7 +79,7 @@ Create a file named `docker-compose.yml` in an empty folder and paste this minim
 ```yaml
 services:
   zomboid-server:
-    image: ghcr.io/meshi-team/zomboid-server:latest
+    image: ghcr.io/meshi-team/project-zomboid-server:latest
     container_name: zomboid-server
     ports:
       - 16261:16261/udp
@@ -107,7 +115,7 @@ docker run -d \
   -v "$(pwd)"/data:/root/Zomboid \
   -e SERVER_NAME=MyServer \
   -e ADMIN_PASSWORD=secret \
-  ghcr.io/meshi-team/zomboid-server:latest
+  ghcr.io/meshi-team/project-zomboid-server:latest
 ```
 
 To persist Workshop downloads as well, add:
