@@ -9,7 +9,8 @@ flowchart TD
       A["Entrypoint starts"] --> B["Load env and resolve paths"]
       B --> C["Run WorkshopManager"]
       C --> C2["Expand WORKSHOP_COLLECTIONS (Steam Web API)"]
-      C2 --> D["Download missing items"]
+      C2 --> C3["Check downloaded items against Steam (time_updated)"]
+      C3 --> D["Download missing and refresh outdated items"]
       D --> E["Update server links and manifest"]
       E --> F["Discover maps (active MODS)"]
       F --> G["Generate spawnregions.lua"]
@@ -39,6 +40,7 @@ At a high level, WorkshopManager ensures the server has the correct set of mods 
 - Expand `WORKSHOP_COLLECTIONS` into Workshop items and mod IDs via the Steam Web API
 - Discover already downloaded items in the Steam workshop content path
 - Download missing items one-by-one using SteamCMD (game app id `108600`)
+- Re-download the items Steam has updated since they were installed (`WORKSHOP_AUTO_UPDATE`, on by default)
 - Synchronize symlinks under the server’s workshop directory so the server “sees” the same content
 - Copy the Steam Workshop manifest (`appworkshop_108600.acf`) into the server’s workshop folder (or remove it if no items selected)
 - Expose the final, successful list back to the environment so downstream steps only reference valid items
@@ -58,6 +60,10 @@ When collections are provided, they are expanded before anything is downloaded. 
 ### Discovery and downloads
 
 The Steam Workshop cache is scanned to find items that already exist on disk. Missing items are fetched with SteamCMD (anonymous login), one at a time. Each download’s output is parsed to confirm success or detect errors; failed IDs are pruned so we continue with a truthful set.
+
+Items already on disk are then checked for updates, unless `WORKSHOP_AUTO_UPDATE=0`. A single batched call to `GetPublishedFileDetails` returns each item’s `time_updated`, which is compared against the install time Steam recorded in `appworkshop_<gameId>.acf` (falling back to the folder’s modification time for items the manifest does not list). Anything newer on Steam is stale — which is what makes clients report `workshop item version is different than the server` — and is downloaded again.
+
+Refreshing has to be reversible. Steam skips any item its manifest still claims as installed, so the entry is cut from the manifest first; and downloading over the old folder would leave behind files the new version deleted, so the old copy is moved aside rather than overwritten. It is deleted only once the new download lands. A failed refresh puts the previous copy back and keeps the item selected — stale but playable beats a missing mod — and an interrupted one is restored on the next start. When Steam cannot be reached the check is skipped entirely, so a network hiccup never turns into a re-download storm.
 
 ### Linking and manifest sync
 
@@ -88,6 +94,7 @@ Once downloads, links, maps, spawn regions, and the `MAP` value are settled (wit
 - WORKSHOP_ITEMS: semicolon-separated list of Workshop IDs selected by you.
 - MODS: semicolon-separated list of active Mod IDs (defines the load order).
 - WORKSHOP_COLLECTIONS: semicolon-separated list of Workshop collection IDs to expand automatically.
+- WORKSHOP_AUTO_UPDATE: set to `0` to stop refreshing items Steam has updated; enabled otherwise.
 - ZOMBOID_GAME_APP_ID: Steam game app id used for downloads (default: 108600).
 - ZOMBOID_SERVER_APP_ID: Steam dedicated server app id (default: 380870).
 - STEAM_WORKSHOP_DEFAULT_DIR: Root folder where Steam caches Workshop content.

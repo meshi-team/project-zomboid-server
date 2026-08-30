@@ -104,6 +104,36 @@ class SteamCollectionResolver:
 
         return mod_ids
 
+    def get_item_update_times(self, workshop_ids: set[str]) -> dict[str, int]:
+        """Fetch the time each Workshop item was last updated on Steam.
+
+        Args:
+            workshop_ids: Set of Workshop item IDs (numeric strings).
+
+        Returns:
+            Mapping of Workshop item ID to its `time_updated` (Unix epoch).
+            Items Steam did not return are absent, so callers leave them alone
+            instead of assuming they changed.
+
+        """
+        valid_ids = self._keep_numeric_ids(workshop_ids)
+        if not valid_ids:
+            return {}
+
+        response = self._query_api("GetPublishedFileDetails", "itemcount", valid_ids)
+        times: dict[str, int] = {}
+
+        for details in (response or {}).get("publishedfiledetails", []):
+            item_id = details.get("publishedfileid")
+            if not item_id or details.get("result") != STEAM_RESULT_OK:
+                continue
+            try:
+                times[item_id] = int(details.get("time_updated", 0))
+            except (TypeError, ValueError):
+                continue
+
+        return times
+
     def _keep_numeric_ids(self, ids: set[str]) -> set[str]:
         """Filter out IDs that are not numeric, logging the discarded ones."""
         for invalid in sorted(item for item in ids if not item.isdigit()):

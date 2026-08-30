@@ -110,16 +110,19 @@ Bind-mount both for persistence across container recreations.
 
 ## Steam Workshop & mods
 
-Three environment variables drive Workshop integration:
+These environment variables drive Workshop integration:
 
 ```yaml
 environment:
   - WORKSHOP_ITEMS=1234567890;9876543210    # Workshop IDs to download
   - MODS=CoolMod;MapMod                      # Mod IDs to enable (from mod.info)
   - WORKSHOP_COLLECTIONS=1122334455          # Collection IDs to expand automatically
+  - WORKSHOP_AUTO_UPDATE=1                   # Refresh items Steam has updated (default)
 ```
 
 Workshop collections are expanded at startup via the Steam Web API: their items are downloaded and each Mod ID is derived from the `Mod ID:` line in the item's Workshop description. Ambiguous items (e.g. mods with several variants) are reported in the logs so you can pick the right variant in `MODS`.
+
+Downloaded items are checked against Steam on every start and re-downloaded when the author has published an update, which is what otherwise causes `workshop item version is different than the server`. The previous copy is kept until the new one lands, and nothing is touched when Steam is unreachable. Set `WORKSHOP_AUTO_UPDATE=0` to pin mods to whatever is on disk.
 
 Map-adding mods are auto-integrated: the `MAP` variable and `spawnregions.lua` are updated automatically. Clients must subscribe to the same mods to join.
 
