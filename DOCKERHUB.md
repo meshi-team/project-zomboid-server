@@ -2,7 +2,9 @@
 
 Docker image for running a **Project Zomboid** dedicated server. Fully configurable via environment variables, with built-in Steam Workshop support, automatic map integration, and an RCON-powered admin console.
 
-> 🧟 **Build 42 now available!** Run the beta with the `unstable` tag — `latest` stays on stable Build 41.
+> 🧟 **Build 42 is now the stable release.** Steam promoted Build 42 to its public branch, so `latest` serves it. Build 41 is legacy — pin `41.78.19` to stay on it.
+>
+> 🔄 **Mods now keep themselves up to date**, which fixes clients being rejected with `workshop item version is different than the server`.
 
 > 🧩 **Workshop collections now supported!** Set `WORKSHOP_COLLECTIONS` to your Steam collection IDs and Workshop items and mods are resolved automatically.
 
@@ -51,11 +53,13 @@ Then connect in-game to `localhost:16261`.
 
 | Tag | Meaning |
 |---|---|
-| `latest` | Latest stable release (Build 41) |
-| `unstable` | Latest release from Steam's `unstable` beta branch (Build 42) |
-| `x.y.z` (e.g. `41.78.19`) | Pinned to the Project Zomboid server semver at build time |
+| `latest` | Latest stable release, currently Build 42 |
+| `unstable` | Latest release from Steam's `unstable` beta branch, while a beta cycle is running |
+| `x.y.z` (e.g. `42.20.4`) | Pinned to the Project Zomboid server semver at build time |
 
-Pin to `x.y.z` for predictable production deployments. Use `latest` for hobby servers. The `unstable` tag follows the Build 42 beta — expect breaking changes between updates.
+Pin to `x.y.z` for predictable production deployments. Use `latest` for hobby servers. Build 41 is no longer built; its last release stays available as `41.78.19`.
+
+The `unstable` tag tracks whatever Steam's `unstable` branch holds. That branch comes and goes — The Indie Stone removes it once a beta is promoted to public and recreates it for the next cycle — so `unstable` can sit unchanged between cycles.
 
 ## Configuration
 
