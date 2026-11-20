@@ -17,8 +17,8 @@ START_SCRIPT="${SERVER_DIR}/start-server.sh"
 declare -a ARGS=()
 
 # JVM args
-if [[ -n "${SERVER_MEMORY}" ]]; then
-	ARGS+=("-Xmx${SERVER_MEMORY}" "-Xms${SERVER_MEMORY}")
+if [[ -n "${SERVER_MAX_MEMORY}" ]]; then
+  ARGS+=("-Xmx${SERVER_MAX_MEMORY}" "-Xms${SERVER_MIN_MEMORY}")
 fi
 [[ "${SOFTRESET,,}" =~ ^(1|true)$ ]] && ARGS+=("-Dsoftreset")
 
